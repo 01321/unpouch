@@ -7,32 +7,32 @@
 # Dependencies
 Pods/
 Carthage/
-build/
-DerivedData/
+.build/
+
+# Xcode
+*.xcodeproj/
+*.xcworkspace/
+*.swiftmodule/
+*.swiftdoc
+*.swo
+*.swp
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
 
 # Environment
 .env
 .env.local
 *.env.*
 
-# Editors
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# System
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-
 # Coverage
+.coverage
 coverage/
 htmlcov/
-.coverage
 
-# Temporary files
-*.tmp
+# macOS
+.DS_Store
 ```
