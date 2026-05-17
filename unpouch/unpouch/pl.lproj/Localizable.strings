@@ -1,28 +1,28 @@
-/* Polish translations for unpouch. */
-
-"today" = "Dzisiaj";
-"strength" = "Moc";
-"view_stats" = "Statystyki";
-"settings" = "Ustawienia";
-"done" = "Gotowe";
-"close" = "Zamknij";
-"statistics" = "Statystyki";
-"period" = "Okres";
-
-"daily_limit" = "Dzienny Limit (saszetki)";
-"reset_time" = "Czas Resetu";
-"language" = "Język";
-
-"limit_reached" = "Osiągnięto Limit";
-"slightly_over" = "Lekko Ponad";
-"over_limit" = "Ponad Limit";
-"slightly_under" = "Lekko Poniżej";
-"under_limit" = "Poniżej Limitu";
-
-"24_hours" = "24 Godziny";
-"1_week" = "1 Tydzień";
-"1_month" = "1 Miesiąc";
-"2_months" = "2 Miesiące";
-"6_months" = "6 Miesięcy";
-"1_year" = "1 Rok";
-"2_years" = "2 Lata";
+today = "Dzisiaj"
+add_pouch = "Dodaj Saszetkę"
+remove_last = "Usuń Ostatnią"
+view_stats = "Zobacz Statystyki"
+strength = "Moc:"
+settings = "Ustawienia"
+done = "Gotowe"
+daily_limit_setting = "Dzienny Limit (Saszetki)"
+limit_value = "Limit:"
+reset_time_setting = "Czas Resetu"
+reset_time_label = "Reset o"
+language_setting = "Język"
+language = "Język"
+statistics = "Statystyki"
+period = "Okres"
+no_data = "Brak danych"
+under_limit = "Poniżej Limitu"
+slightly_under = "Lekko Poniżej"
+limit_reached = "Osiągnięto Limit"
+slightly_over = "Lekko Powyżej"
+over_limit = "Powyżej Limitu"
+24h = "24 Godziny"
+1w = "1 Tydzień"
+1m = "1 Miesiąc"
+2m = "2 Miesiące"
+6m = "6 Miesięcy"
+1y = "1 Rok"
+2y = "2 Lata"

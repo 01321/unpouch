@@ -4,26 +4,30 @@ struct SettingsView: View {
     @EnvironmentObject var dataStore: DataStore
     @Environment(\.dismiss) var dismiss
     
-    @State private var dailyLimit: Int = 5
+    @State private var dailyLimit: Int = 10
     @State private var resetHour: Int = 1
     @State private var selectedLanguage: String = "en"
     
     let languages = [
-        "en": "English",
-        "pl": "Polski",
-        "de": "Deutsch"
+        ("en", "English"),
+        ("pl", "Polski"),
+        ("de", "Deutsch")
     ]
     
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("daily_limit")) {
+                Section(header: Text("daily_limit_setting")) {
                     Stepper(value: $dailyLimit, in: 1...50) {
-                        Text("\(dailyLimit) pouches")
+                        HStack {
+                            Text("limit_value")
+                            Text("\(dailyLimit)")
+                                .fontWeight(.bold)
+                        }
                     }
                 }
                 
-                Section(header: Text("reset_time")) {
+                Section(header: Text("reset_time_setting")) {
                     Menu {
                         ForEach(0..<24, id: \.self) { hour in
                             Button(action: {
@@ -39,29 +43,35 @@ struct SettingsView: View {
                         }
                     } label: {
                         HStack {
-                            Text(String(format: "%02d:00", resetHour))
+                            Text("reset_time_label")
                             Spacer()
+                            Text(String(format: "%02d:00", resetHour))
+                                .foregroundColor(.gray)
                             Image(systemName: "chevron.down")
-                                .foregroundColor(.secondary)
+                                .font(.system(size: 12))
+                                .foregroundColor(.gray)
                         }
                     }
                 }
                 
-                Section(header: Text("language")) {
+                Section(header: Text("language_setting")) {
                     Picker("language", selection: $selectedLanguage) {
-                        ForEach(languages.keys.sorted(), id: \.self) { key in
-                            Text(languages[key] ?? key).tag(key)
+                        ForEach(languages, id: \.0) { code, name in
+                            Text(name).tag(code)
                         }
                     }
+                    .pickerStyle(SegmentedPickerStyle())
                 }
             }
             .navigationTitle("settings")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                ToolbarItem(placement: .navigationBarTrailing) {
                     Button("done") {
                         saveSettings()
                         dismiss()
                     }
+                    .fontWeight(.bold)
                 }
             }
             .onAppear {
@@ -72,7 +82,11 @@ struct SettingsView: View {
         }
     }
     
-    func saveSettings() {
-        dataStore.updateSettings(dailyLimit: dailyLimit, resetHour: resetHour, language: selectedLanguage)
+    private func saveSettings() {
+        dataStore.updateSettings(
+            dailyLimit: dailyLimit,
+            resetHour: resetHour,
+            language: selectedLanguage
+        )
     }
 }

@@ -66,39 +66,38 @@ class DataStore: ObservableObject {
             if count == limit + 1 {
                 return "slightly_over"
             }
-            return "over"
+            return "over_limit"
         } else {
-            if count == limit - 1 && limit > 0 {
+            if count == limit - 1 {
                 return "slightly_under"
             }
-            return "under"
+            return "under_limit"
         }
     }
     
     func getPouchesForPeriod(_ period: StatsPeriod) -> [Pouch] {
         let now = Date()
         let calendar = Calendar.current
+        let startDate: Date
         
-        var startDate: Date?
         switch period {
-        case .day:
-            startDate = calendar.date(byAdding: .hour, value: -24, to: now)
+        case .day24:
+            startDate = calendar.date(byAdding: .hour, value: -24, to: now)!
         case .week:
-            startDate = calendar.date(byAdding: .day, value: -7, to: now)
+            startDate = calendar.date(byAdding: .day, value: -7, to: now)!
         case .month:
-            startDate = calendar.date(byAdding: .month, value: -1, to: now)
-        case .twoMonths:
-            startDate = calendar.date(byAdding: .month, value: -2, to: now)
-        case .sixMonths:
-            startDate = calendar.date(byAdding: .month, value: -6, to: now)
+            startDate = calendar.date(byAdding: .month, value: -1, to: now)!
+        case .months2:
+            startDate = calendar.date(byAdding: .month, value: -2, to: now)!
+        case .months6:
+            startDate = calendar.date(byAdding: .month, value: -6, to: now)!
         case .year:
-            startDate = calendar.date(byAdding: .year, value: -1, to: now)
-        case .twoYears:
-            startDate = calendar.date(byAdding: .year, value: -2, to: now)
+            startDate = calendar.date(byAdding: .year, value: -1, to: now)!
+        case .years2:
+            startDate = calendar.date(byAdding: .year, value: -2, to: now)!
         }
         
-        guard let start = startDate else { return [] }
-        return pouches.filter { $0.date >= start && $0.date <= now }
+        return pouches.filter { $0.date >= startDate }.sorted { $0.date < $1.date }
     }
     
     func save() {
@@ -124,23 +123,15 @@ class DataStore: ObservableObject {
 }
 
 enum StatsPeriod: String, CaseIterable {
-    case day = "24h"
+    case day24 = "24h"
     case week = "1w"
     case month = "1m"
-    case twoMonths = "2m"
-    case sixMonths = "6m"
+    case months2 = "2m"
+    case months6 = "6m"
     case year = "1y"
-    case twoYears = "2y"
+    case years2 = "2y"
     
-    var localizedName: String {
-        switch self {
-        case .day: return NSLocalizedString("24_hours", comment: "")
-        case .week: return NSLocalizedString("1_week", comment: "")
-        case .month: return NSLocalizedString("1_month", comment: "")
-        case .twoMonths: return NSLocalizedString("2_months", comment: "")
-        case .sixMonths: return NSLocalizedString("6_months", comment: "")
-        case .year: return NSLocalizedString("1_year", comment: "")
-        case .twoYears: return NSLocalizedString("2_years", comment: "")
-        }
+    var localizableKey: String {
+        return self.rawValue
     }
 }

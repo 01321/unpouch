@@ -1,19 +1,19 @@
 import Foundation
 
-struct Pouch: Codable, Equatable {
-    let id: UUID
+struct Pouch: Codable, Identifiable {
+    let id = UUID()
     let date: Date
-    let strength: Int
-    
-    init(id: UUID = UUID(), date: Date, strength: Int) {
-        self.id = id
-        self.date = date
-        self.strength = strength
-    }
+    let strength: Int // mg
 }
 
 struct Settings: Codable {
-    var dailyLimit: Int = 5
-    var resetHour: Int = 1
-    var language: String = "en"
+    var dailyLimit: Int // number of pouches
+    var resetHour: Int
+    var language: String // "en", "pl", "de"
+    
+    init() {
+        self.dailyLimit = 10
+        self.resetHour = 1 // 1:00 AM default
+        self.language = "en"
+    }
 }

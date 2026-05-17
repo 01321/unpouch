@@ -1,32 +1,39 @@
 ```
-# Xcode
-build/
-*.xcodeproj/
-*.xcworkspace/
-*.xcuserstate
-project.xcworkspace/
-xcuserdata/
-
-# Swift
-*.swiftmodule/
-*.swiftdoc
-*.swiftsourceinfo
-
 # Build artifacts
-DerivedData/
+*.o
+*.obj
+*.out
+
+# Dependencies
+Pods/
+Carthage/
+build/
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
 
 # Environment
 .env
 .env.local
-*.env.*
+.env.*
 
-# Logs
-*.log
-
-# Temporary files
-*.tmp
+# Editors
+.vscode/
+.idea/
 *.swp
+*.swo
 
 # macOS
 .DS_Store
+*.DS_Store
+
+# iOS/Swift specific
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
+DerivedData/
+*.app
+*.ipa
+*.dSYM
 ```
