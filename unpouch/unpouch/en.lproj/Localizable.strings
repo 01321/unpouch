@@ -1,0 +1,28 @@
+/* English translations for unpouch. */
+
+"today" = "Today";
+"strength" = "Strength";
+"view_stats" = "View Statistics";
+"settings" = "Settings";
+"done" = "Done";
+"close" = "Close";
+"statistics" = "Statistics";
+"period" = "Period";
+
+"daily_limit" = "Daily Limit (pouches)";
+"reset_time" = "Reset Time";
+"language" = "Language";
+
+"limit_reached" = "Limit Reached";
+"slightly_over" = "Slightly Over";
+"over_limit" = "Over Limit";
+"slightly_under" = "Slightly Under";
+"under_limit" = "Under Limit";
+
+"24_hours" = "24 Hours";
+"1_week" = "1 Week";
+"1_month" = "1 Month";
+"2_months" = "2 Months";
+"6_months" = "6 Months";
+"1_year" = "1 Year";
+"2_years" = "2 Years";
