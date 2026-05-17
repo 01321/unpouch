@@ -1,8 +1,3 @@
-//
-//  unpouchApp.swift
-//  unpouch
-//
-
 import SwiftUI
 
 @main
