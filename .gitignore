@@ -2,29 +2,80 @@
 # Build artifacts
 *.o
 *.obj
+*.a
+*.lib
+*.dylib
+*.so
+*.dll
+*.exe
 *.out
 
-# Dependencies
-Packages/
-*.package-lock.json
-
-# Logs and temp files
-*.log
-*.tmp
-
-# Editors
-.vscode/
-.idea/
-
-# macOS
-.DS_Store
-
-# iOS/Swift specific
+# Xcode/Swift specific
 *.xcodeproj/
 *.xcworkspace/
-DerivedData/
+*.swiftmodule/
+*.swiftdoc
+*.smap
+*.dat
+*.dSYM/
 build/
-*.app
-*.ipa
-*.dSYM*
+DerivedData/
+
+# Dependencies
+Pods/
+Carthage/
+vendor/bundle/
+node_modules/
+.venv/
+venv/
+.env
+.env.local
+*.env.*
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Distribution / packaging
+dist/
+pkg/
+*.zip
+*.tar.gz
+*.dmg
+
+# Testing
+*.test
+*.tests
+
+# Swift Package Manager
+.swiftpm/
+Package.resolved
+
+# Localizable strings build artifacts (if any)
+*.stringsdict
 ```
