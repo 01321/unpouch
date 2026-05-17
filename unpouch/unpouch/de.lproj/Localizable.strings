@@ -1,0 +1,28 @@
+/* German translations for unpouch. */
+
+"today" = "Heute";
+"strength" = "Stärke";
+"view_stats" = "Statistiken";
+"settings" = "Einstellungen";
+"done" = "Fertig";
+"close" = "Schließen";
+"statistics" = "Statistiken";
+"period" = "Zeitraum";
+
+"daily_limit" = "Tägliches Limit (Beutel)";
+"reset_time" = "Reset-Zeit";
+"language" = "Sprache";
+
+"limit_reached" = "Limit Erreicht";
+"slightly_over" = "Leicht Darüber";
+"over_limit" = "Über dem Limit";
+"slightly_under" = "Leicht Darunter";
+"under_limit" = "Unter dem Limit";
+
+"24_hours" = "24 Stunden";
+"1_week" = "1 Woche";
+"1_month" = "1 Monat";
+"2_months" = "2 Monate";
+"6_months" = "6 Monate";
+"1_year" = "1 Jahr";
+"2_years" = "2 Jahre";
