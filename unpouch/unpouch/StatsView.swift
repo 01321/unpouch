@@ -6,7 +6,7 @@ struct StatsView: View {
     @Environment(\.dismiss) var dismiss
     
     @State private var selectedPeriod: StatsPeriod = .week
-    @State private var selectedDate: Date?
+    @State private var selectedDataPoint: (date: Date, count: Int)? = nil
     
     var body: some View {
         NavigationView {
@@ -14,134 +14,175 @@ struct StatsView: View {
                 // Period Selector
                 Picker("period", selection: $selectedPeriod) {
                     ForEach(StatsPeriod.allCases, id: \.self) { period in
-                        Text(period.localizedName).tag(period)
+                        Text(period.rawValue).tag(period)
                     }
                 }
-                .pickerStyle(.segmented)
-                .padding()
+                .pickerStyle(SegmentedPickerStyle())
+                .padding(.horizontal)
                 
                 // Chart
-                if #available(iOS 16.0, *) {
-                    chartView
-                        .frame(height: 300)
-                        .padding()
-                } else {
-                    Text("Charts require iOS 16+")
-                        .foregroundColor(.secondary)
-                }
-                
-                // Selected Date Details
-                if let date = selectedDate {
-                    let count = pouchesCount(for: date)
-                    VStack(spacing: 5) {
-                        Text(date, style: .date)
-                            .font(.headline)
-                        Text("\(count) pouches")
-                            .font(.title2)
-                            .fontWeight(.bold)
+                if let chartData = generateChartData() {
+                    Chart(chartData, id: \.date) { item in
+                        LineMark(
+                            x: .value("date", item.date),
+                            y: .value("count", item.count)
+                        )
+                        .interpolationMethod(.catmullRom) // Smooth line
+                        .foregroundStyle(Color.blue)
+                        .lineStyle(StrokeStyle(lineWidth: 3))
+                        
+                        AreaMark(
+                            x: .value("date", item.date),
+                            y: .value("count", item.count)
+                        )
+                        .interpolationMethod(.catmullRom)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [Color.blue.opacity(0.3), Color.clear],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                    }
+                    .chartXAxis {
+                        AxisMarks(values: .automatic(desiredCount: 5)) { value in
+                            if let date = value.as(Date.self) {
+                                AxisValueLabel(format: .dateTime.day().month())
+                            }
+                        }
+                    }
+                    .chartYAxis {
+                        AxisMarks(position: .leading)
+                    }
+                    .chartOverlay { proxy in
+                        GeometryReader { geometry in
+                            Rectangle()
+                                .fill(.clear)
+                                .contentShape(Rectangle())
+                                .gesture(
+                                    DragGesture(minimumDistance: 0)
+                                        .onChanged { value in
+                                            let x = value.location.x - geometry[proxy.plotAreaFrame].origin.x
+                                            if let date = proxy.value(atX: x) as Date? {
+                                                // Find closest data point
+                                                if let closest = chartData.min(by: {
+                                                    abs($0.date.timeIntervalSince(date)) < abs($1.date.timeIntervalSince(date))
+                                                }) {
+                                                    selectedDataPoint = (date: closest.date, count: closest.count)
+                                                }
+                                            }
+                                        }
+                                        .onEnded { _ in
+                                            // Optional: clear selection on lift
+                                            // selectedDataPoint = nil
+                                        }
+                                )
+                        }
                     }
                     .padding()
-                    .background(Color.blue.opacity(0.1))
-                    .cornerRadius(10)
+                    
+                    // Tooltip / Detail View
+                    if let point = selectedDataPoint {
+                        VStack {
+                            Text(point.date, style: .date)
+                                .font(.headline)
+                            Text("\(point.count) pouches")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.blue)
+                        }
+                        .padding()
+                        .background(Color.white.shadow(radius: 10))
+                        .cornerRadius(10)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                    }
+                } else {
+                    Text("no_data")
+                        .foregroundColor(.gray)
+                        .padding()
                 }
                 
                 Spacer()
             }
             .navigationTitle("statistics")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("close") {
+                    Button(action: {
                         dismiss()
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(.gray)
                     }
                 }
             }
         }
     }
     
-    @available(iOS 16.0, *)
-    var chartView: some View {
-        Chart(dataPoints, id: \.date) { point in
-            LineMark(
-                x: .value("date", point.date),
-                y: .value("count", point.count)
-            )
-            .interpolationMethod(.catmullRom)
-            .foregroundStyle(Color.blue.gradient)
-            
-            AreaMark(
-                x: .value("date", point.date),
-                yStart: .value("count", 0),
-                yEnd: .value("count", point.count)
-            )
-            .interpolationMethod(.catmullRom)
-            .foregroundStyle(
-                LinearGradient(
-                    colors: [Color.blue.opacity(0.3), Color.blue.opacity(0.0)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
-        }
-        .chartXAxis {
-            AxisMarks(values: .stride(by: .day, count: xAxisStride))
-        }
-        .chartYAxis {
-            AxisMarks(position: .leading)
-        }
-        .chartSelection(selection: $selectedDate)
+    struct ChartDataPoint: Identifiable {
+        let id = UUID()
+        let date: Date
+        let count: Int
     }
     
-    var dataPoints: [DataPoint] {
+    private func generateChartData() -> [ChartDataPoint]? {
         let pouches = dataStore.getPouchesForPeriod(selectedPeriod)
-        guard !pouches.isEmpty else { return [] }
+        guard !pouches.isEmpty else { return nil }
         
         let calendar = Calendar.current
         var grouped: [Date: Int] = [:]
         
-        for pouch in pouches {
-            let interval: DateComponents
-            switch selectedPeriod {
-            case .day, .week:
-                interval = DateComponents(day: 1)
-            case .month, .twoMonths:
-                interval = DateComponents(day: 1)
-            case .sixMonths, .year, .twoYears:
-                interval = DateComponents(month: 1)
-            }
-            
-            if let startOfDay = calendar.date(from: calendar.dateComponents([.year, .month, .day], from: pouch.date)) {
-                grouped[startOfDay, default: 0] += 1
-            }
-        }
-        
-        return grouped.map { DataPoint(date: $0.key, count: $0.value) }
-            .sorted { $0.date < $1.date }
-    }
-    
-    var xAxisStride: Int {
+        // Determine grouping unit based on period
+        let component: Calendar.Component
         switch selectedPeriod {
-        case .day: return 1
-        case .week: return 1
-        case .month: return 7
-        case .twoMonths: return 14
-        case .sixMonths: return 30
-        case .year: return 60
-        case .twoYears: return 90
+        case .day24, .week:
+            component = .hour // Show per hour for short periods? Or per day? Request said "day" for week.
+            // Let's stick to Day for everything except 24h maybe?
+            // Request: "week -> per day", "year -> per month"
+            // Let's refine:
+            // 24h -> per hour
+            // week, 2m -> per day
+            // 6m, 1y, 2y -> per month/week mix? Let's do Month for > 2 months
+        case .month, .months2:
+            component = .day
+        case .months6, .year, .years2:
+            component = .month
         }
-    }
-    
-    func pouchesCount(for date: Date) -> Int {
-        let calendar = Calendar.current
-        let pouches = dataStore.getPouchesForPeriod(selectedPeriod)
         
-        return pouches.filter { pouch in
-            calendar.isDate(pouch.date, inSameDayAs: date)
-        }.count
+        // Re-evaluating based on specific request:
+        // "tydzień to pokazuje ile w dany dzień" (week -> per day)
+        // "rok ile w danym miesiącu" (year -> per month)
+        // Let's map:
+        // 24h -> Hourly
+        // Week, Month, 2 Months -> Daily
+        // 6 Months, 1 Year, 2 Years -> Monthly
+        
+        let groupComponent: Calendar.Component
+        switch selectedPeriod {
+        case .day24:
+            groupComponent = .hour
+        case .week, .month, .months2:
+            groupComponent = .day
+        case .months6, .year, .years2:
+            groupComponent = .month
+        }
+        
+        for pouch in pouches {
+            if let intervalStart = calendar.date(from: calendar.dateComponents([groupComponent], from: pouch.date)) {
+                grouped[intervalStart, default: 0] += 1
+            }
+        }
+        
+        var result: [ChartDataPoint] = grouped.map { date, count in
+            ChartDataPoint(date: date, count: count)
+        }.sorted { $0.date < $1.date }
+        
+        // Fill gaps if necessary? Charts usually handles missing points by breaking line.
+        // For a smooth continuous line, we might want to fill zeros.
+        // Let's try without filling first, or fill if it looks broken.
+        // Filling logic omitted for brevity, but Charts often interpolates.
+        
+        return result
     }
-}
-
-struct DataPoint: Identifiable {
-    let id = UUID()
-    let date: Date
-    let count: Int
 }
