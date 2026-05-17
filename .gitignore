@@ -5,35 +5,26 @@
 *.out
 
 # Dependencies
-Pods/
-Carthage/
-build/
+Packages/
+*.package-lock.json
 
 # Logs and temp files
 *.log
 *.tmp
-*.swp
-
-# Environment
-.env
-.env.local
-.env.*
 
 # Editors
 .vscode/
 .idea/
-*.swp
-*.swo
 
 # macOS
 .DS_Store
-*.DS_Store
 
 # iOS/Swift specific
-*.xcodeproj/project.xcworkspace/
-*.xcodeproj/xcuserdata/
+*.xcodeproj/
+*.xcworkspace/
 DerivedData/
+build/
 *.app
 *.ipa
-*.dSYM
+*.dSYM*
 ```
