@@ -61,10 +61,10 @@ struct StatsView: View {
             var currentDate = calendar.date(bySettingHour: calendar.component(.hour, from: startDate),
                                            minute: 0, second: 0, of: startDate) ?? startDate
             while currentDate <= endDate {
-                let hourSum = filteredData.filter { entry in
+                let hourCount = filteredData.filter { entry in
                     calendar.isDate(entry.date, equalTo: currentDate, toGranularity: .hour)
-                }.reduce(0) { $0 + $1.strength }
-                result.append((currentDate, hourSum))
+                }.count
+                result.append((currentDate, hourCount))
                 currentDate = calendar.date(byAdding: .hour, value: 1, to: currentDate) ?? endDate
             }
         } else if selectedPeriod == .week1 || selectedPeriod == .week2 {
@@ -77,15 +77,15 @@ struct StatsView: View {
             // Wypełnij wszystkie dni zerami
             var currentDate = calendar.startOfDay(for: startDate)
             while currentDate <= endDate {
-                let daySum = filteredData.filter { entry in
+                let dayCount = filteredData.filter { entry in
                     calendar.isDate(entry.date, inSameDayAs: currentDate)
-                }.reduce(0) { $0 + $1.strength }
-                result.append((currentDate, daySum))
+                }.count
+                result.append((currentDate, dayCount))
                 currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate) ?? endDate
             }
         } else if selectedPeriod == .month1 || selectedPeriod == .month2 {
             // Dla 1M i 2M - dane tygodniowe (suma z tygodnia)
-            var weeklySums: [Date: Int] = [:]
+            var weeklyCounts: [Date: Int] = [:]
             for entry in filteredData {
                 // Znajdź początek tygodnia (poniedziałek)
                 var startOfWeek = calendar.startOfDay(for: entry.date)
@@ -97,7 +97,7 @@ struct StatsView: View {
                 }
                 startOfWeek = calendar.date(byAdding: .day, value: -daysToMonday + 1, to: startOfWeek) ?? startOfWeek
                 
-                weeklySums[startOfWeek, default: 0] += entry.strength
+                weeklyCounts[startOfWeek, default: 0] += 1
             }
             
             // Wypełnij tygodnie zerami
@@ -117,17 +117,17 @@ struct StatsView: View {
             currentDate = calendar.date(byAdding: .day, value: -daysToMonday + 1, to: currentDate) ?? currentDate
             
             while currentDate <= endDate {
-                let value = weeklySums[currentDate] ?? 0
+                let value = weeklyCounts[currentDate] ?? 0
                 result.append((currentDate, value))
                 currentDate = calendar.date(byAdding: .weekOfYear, value: 1, to: currentDate) ?? endDate
             }
         } else {
             // Agregacja miesięczna dla 6M i 1Y
-            var monthlySums: [Date: Int] = [:]
+            var monthlyCounts: [Date: Int] = [:]
             for entry in filteredData {
                 // Znajdź początek miesiąca
                 let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: entry.date)) ?? entry.date
-                monthlySums[monthStart, default: 0] += entry.strength
+                monthlyCounts[monthStart, default: 0] += 1
             }
             
             // Wypełnij miesiące zerami
@@ -139,7 +139,7 @@ struct StatsView: View {
             var currentDate = calendar.date(from: calendar.dateComponents([.year, .month], from: startDate)) ?? startDate
             
             while currentDate <= endDate {
-                let value = monthlySums[currentDate] ?? 0
+                let value = monthlyCounts[currentDate] ?? 0
                 result.append((currentDate, value))
                 currentDate = calendar.date(byAdding: .month, value: 1, to: currentDate) ?? endDate
             }
@@ -257,7 +257,14 @@ struct StatsView: View {
             }
         }
         .chartYAxis {
-            AxisMarks(position: .leading)
+            AxisMarks(position: .leading) { value in
+                if let intValue = value.as(Int.self) {
+                    AxisValueLabel("\(intValue)")
+                } else {
+                    AxisGridLine()
+                    AxisTick()
+                }
+            }
         }
         .chartOverlay { proxy in
             GeometryReader { geometry in
@@ -291,16 +298,16 @@ struct StatsView: View {
         case .day24:
             return .stride(by: Calendar.Component.hour, count: 1)
         case .week1:
-            // Pokaż co 2 dni dla 7 dni
-            return .stride(by: Calendar.Component.day, count: 2)
+            // Pokaż co 3 dni dla 7 dni
+            return .stride(by: Calendar.Component.day, count: 3)
         case .week2:
-            // Pokaż co 4 dni dla 14 dni, żeby się nie nakładały
-            return .stride(by: Calendar.Component.day, count: 4)
+            // Pokaż co 5 dni dla 14 dni, żeby się nie nakładały
+            return .stride(by: Calendar.Component.day, count: 5)
         case .month1, .month2:
             return .stride(by: Calendar.Component.weekOfYear, count: 1)
         case .month6:
-            // Pokaż co 2 miesiące dla 6M
-            return .stride(by: Calendar.Component.month, count: 2)
+            // Pokaż co 3 miesiące dla 6M
+            return .stride(by: Calendar.Component.month, count: 3)
         case .year1:
             // Pokaż co 4 miesiące dla 1Y, żeby się nie nakładały
             return .stride(by: Calendar.Component.month, count: 4)
