@@ -13,7 +13,7 @@ struct ContentView: View {
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .padding(.top, 50)
-                    .padding(.leading, -170)
+                    .padding(.leading, -180)
                 
                 // Top Stats Section
                 VStack(spacing: 10) {
