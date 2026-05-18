@@ -108,14 +108,16 @@ struct StatsView: View {
     }
     
     @available(iOS 16.0, *)
-    private func dateLabelFormat(for date: Date) -> DateFormatter.DateTimeComponentsFormat {
+    private func dateLabelFormat(for date: Date) -> String {
+        let formatter = DateFormatter()
         if selectedPeriod == .day24 {
-            return .dateTime.hour()
+            formatter.dateFormat = "HH:mm"
         } else if selectedPeriod == .month6 || selectedPeriod == .year1 {
-            return .dateTime.month().day()
+            formatter.dateFormat = "MMM dd"
         } else {
-            return .dateTime.day().month()
+            formatter.dateFormat = "dd MMM"
         }
+        return formatter.string(from: date)
     }
     
     @available(iOS 16.0, *)
