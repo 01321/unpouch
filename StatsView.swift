@@ -52,10 +52,20 @@ struct StatsView: View {
         
         if selectedPeriod == .day24 {
             // Dla 24h pokazujemy każdą rejestrację z godziną (zaokrągloną do godziny)
-            for entry in filteredData {
-                let hourStart = calendar.date(bySettingHour: calendar.component(.hour, from: entry.date),
-                                              minute: 0, second: 0, of: entry.date) ?? entry.date
-                result.append((hourStart, entry.strength))
+            let endDate = Date()
+            guard let startDate = calendar.date(byAdding: .hour, value: -23, to: endDate) else {
+                return []
+            }
+            
+            // Wypełnij wszystkie godziny zerami
+            var currentDate = calendar.date(bySettingHour: calendar.component(.hour, from: startDate),
+                                           minute: 0, second: 0, of: startDate) ?? startDate
+            while currentDate <= endDate {
+                let hourSum = filteredData.filter { entry in
+                    calendar.isDate(entry.date, equalTo: currentDate, toGranularity: .hour)
+                }.reduce(0) { $0 + $1.strength }
+                result.append((currentDate, hourSum))
+                currentDate = calendar.date(byAdding: .hour, value: 1, to: currentDate) ?? endDate
             }
         } else if selectedPeriod == .week1 || selectedPeriod == .week2 {
             // Dla 1W i 2W - ostatnie 7/14 dni, dane dzienne bez agregacji
@@ -203,9 +213,10 @@ struct StatsView: View {
             )
         }
         .chartXAxis {
-            AxisMarks(values: .stride(by: xAxisStride())) { value in
+            AxisMarks(values: xAxisValues()) { value in
                 let date = value.as(Date.self)
-                AxisValueLabel(format: date.map { xAxisFormat($0) } ?? .dateTime)            }
+                AxisValueLabel(format: date.map { xAxisFormat($0) } ?? .dateTime)
+            }
         }
         .chartYAxis {
             AxisMarks(position: .leading)
@@ -236,6 +247,27 @@ struct StatsView: View {
         }
     }
     
+    
+    func xAxisValues() -> AxisMarkValues {
+        switch selectedPeriod {
+        case .day24:
+            return .stride(by: Calendar.Component.hour, count: 1)
+        case .week1:
+            // Pokaż co 2 dni dla 7 dni
+            return .stride(by: Calendar.Component.day, count: 2)
+        case .week2:
+            // Pokaż co 3 dni dla 14 dni
+            return .stride(by: Calendar.Component.day, count: 3)
+        case .month1, .month2:
+            return .stride(by: Calendar.Component.weekOfYear, count: 1)
+        case .month6:
+            // Pokaż co 2 miesiące dla 6M
+            return .stride(by: Calendar.Component.month, count: 2)
+        case .year1:
+            // Pokaż co 3 miesiące dla 1Y
+            return .stride(by: Calendar.Component.month, count: 3)
+        }
+    }
     
     func xAxisStride() -> Calendar.Component {
         switch selectedPeriod {
