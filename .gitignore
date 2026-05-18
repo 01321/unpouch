@@ -1,5 +1,16 @@
 ```
-# Xcode project files
+# Build artifacts
+*.o
+*.obj
+*.a
+*.lib
+*.dylib
+*.so
+*.dll
+*.exe
+*.out
+
+# Xcode specific
 *.xcodeproj/
 *.xcworkspace/
 *.pbxuser
@@ -8,29 +19,42 @@
 *.xcuserstate
 *.xccheckout
 *.moved-aside
-
-# Build results
 build/
 DerivedData/
 
-# Swift Package Manager
-.swiftpm/
+# Swift specific
+*.swiftmodule
+*.swiftdoc
+*.swiftsourceinfo
 
-# Temporary files
+# Dependencies
+Pods/
+Carthage/
+.externalTool
+.externalToolBuildData
+
+# Logs and temp files
+*.log
 *.tmp
 *.swp
-*~
-.DS_Store
 
-# Environment variables
+# Environment
 .env
 .env.local
 *.env.*
 
-# Logs
-*.log
-
-# IDE specific
+# Editors
 .vscode/
 .idea/
+*.swp
+*.swo
+
+# Coverage
+.coverage
+coverage/
+htmlcov/
+
+# System files
+.DS_Store
+Thumbs.db
 ```

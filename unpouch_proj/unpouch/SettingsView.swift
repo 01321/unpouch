@@ -3,6 +3,8 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var dataStore: DataStore
     @Environment(\.dismiss) var dismiss
+    @State private var showCustomStrengthAlert = false
+    @State private var newCustomStrength = ""
     
     var body: some View {
         NavigationView {
@@ -52,12 +54,12 @@ struct SettingsView: View {
                             Text("\(strength)mg")
                             Spacer()
                             Button("Delete", role: .destructive) {
-                                dataStore.customStrengths.removeAll { $0 == strength }
+                                dataStore.removeCustomStrength(strength)
                             }
                         }
                     }
                     
-                    Button(action: addCustomStrength) {
+                    Button(action: { showCustomStrengthAlert = true }) {
                         HStack {
                             Image(systemName: "plus.circle.fill")
                             Text("Add Custom Strength")
@@ -74,13 +76,20 @@ struct SettingsView: View {
                     }
                 }
             }
+            .alert("Custom Strength", isPresented: $showCustomStrengthAlert) {
+                TextField("Enter mg (e.g., 25)", text: $newCustomStrength)
+                    .keyboardType(.numberPad)
+                Button("Cancel", role: .cancel) {}
+                Button("Add") {
+                    if let strength = Int(newCustomStrength), strength > 0 {
+                        dataStore.addCustomStrength(strength)
+                        newCustomStrength = ""
+                    }
+                }
+            } message: {
+                Text("Enter a custom strength in mg")
+            }
         }
-    }
-    
-    func addCustomStrength() {
-        // This would ideally show an alert to input the strength
-        // For simplicity, we'll just add a default custom value
-        dataStore.addCustomStrength(15)
     }
 }
 

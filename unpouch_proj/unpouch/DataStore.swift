@@ -31,8 +31,6 @@ class DataStore: ObservableObject {
     }
     
     func removePouch(at offsets: IndexSet, for period: StatsPeriod) {
-        // Implementation depends on how you filter pouches by period in the view
-        // For now, assuming we remove from the main array based on offset if not filtered
         pouches.remove(atOffsets: offsets)
     }
     
@@ -166,6 +164,10 @@ class DataStore: ObservableObject {
             customStrengths.append(strength)
             customStrengths.sort()
         }
+    }
+    
+    func removeCustomStrength(_ strength: Int) {
+        customStrengths.removeAll { $0 == strength }
     }
     
     func getAvailableStrengths() -> [Int] {
