@@ -150,7 +150,7 @@ struct StatsView: View {
         .chartXAxis {
             AxisMarks(values: .stride(by: xAxisStride())) { value in
                 let date = value.as(Date.self)
-                AxisValueLabel(format: date.map { xAxisFormat($0) })            }
+                AxisValueLabel(format: date.map { xAxisFormat($0) } ?? .dateTime)            }
         }
         .chartYAxis {
             AxisMarks(position: .leading)
