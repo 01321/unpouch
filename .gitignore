@@ -1,36 +1,55 @@
 ```
-# Xcode project files
-*.xcodeproj/
-*.xcworkspace/
-*.pbxuser
-*.mode1v3
-*.perspectivev3
-*.xcuserstate
-*.xccheckout
-*.moved-aside
+# Build artifacts
+*.o
+*.obj
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
 
-# Build results
+# Dependencies
+Pods/
+Carthage/
 build/
-DerivedData/
 
-# Swift Package Manager
-.swiftpm/
-
-# Temporary files
+# Logs and temp files
+*.log
 *.tmp
 *.swp
-*~
-.DS_Store
 
-# Environment variables
+# Environment
 .env
 .env.local
 *.env.*
 
-# Logs
-*.log
-
-# IDE specific
+# Editors
 .vscode/
 .idea/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+*.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Swift specific
+*.swiftmodule
+*.swiftdoc
+*.swiftsourceinfo
+.derivedData
+
+# Xcode
+*.xcodeproj/
+*.xcworkspace/
+*.playground/
+xcuserdata/
+xcshareddata/
 ```
