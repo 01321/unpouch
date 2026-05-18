@@ -53,6 +53,9 @@ struct SettingsView: View {
                             Text(languageNames[index]).tag(languages[index])
                         }
                     }
+                    .onChange(of: selectedLanguage) { newLanguage in
+                        saveSettings()
+                    }
                 }
             }
             .navigationTitle("settings")
@@ -75,8 +78,12 @@ struct SettingsView: View {
     
     private func saveSettings() {
         dataStore.updateSettings(dailyLimit: dailyLimit, resetHour: resetHour, language: selectedLanguage)
-        // Note: Language change might require app restart to take full effect immediately in some cases,
-        // but SwiftUI usually updates dynamically if LocalizedStringKey is used properly.
+        
+        // Force update of the app's locale
+        if let bundleIdentifier = Bundle.main.bundleIdentifier {
+            UserDefaults.standard.set([selectedLanguage], forKey: "AppleLanguages")
+            UserDefaults.standard.synchronize()
+        }
     }
 }
 
