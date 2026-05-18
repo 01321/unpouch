@@ -30,14 +30,14 @@ struct StatsView: View {
         }
     }
     
-    var filteredData: [PouchEntry] {
+    var filteredData: [Pouch] {
         let calendar = Calendar.current
         let now = Date()
         guard let startDate = calendar.date(byAdding: .day, value: -selectedPeriod.days, to: now) else {
             return []
         }
         
-        var entries = dataStore.entries.filter { entry in
+        var entries = dataStore.pouches.filter { entry in
             return entry.date >= startDate && entry.date <= now
         }
         entries.sort { $0.date < $1.date }
@@ -53,14 +53,14 @@ struct StatsView: View {
         if selectedPeriod == .day24 {
             // Dla 24h pokazujemy każdą rejestrację z godziną
             for entry in filteredData {
-                result.append((entry.date, entry.count))
+                result.append((entry.date, entry.strength))
             }
         } else {
             // Agregacja dzienna dla dłuższych okresów
             var dailySums: [Date: Int] = [:]
             for entry in filteredData {
                 if let dayStart = calendar.startOfDay(for: entry.date) {
-                    dailySums[dayStart, default: 0] += entry.count
+                    dailySums[dayStart, default: 0] += entry.strength
                 }
             }
             
@@ -163,7 +163,7 @@ struct StatsView: View {
                 Rectangle().fill(Color.clear).contentShape(Rectangle())
                     .gesture(
                         DragGesture(minimumDistance: 0)
-                            .onChanged { value in
+                            .onChanged { _ in
                                 // Interakcja obsługiwana przez chartTooltip
                             }
                     )
@@ -174,34 +174,19 @@ struct StatsView: View {
                 Rectangle().fill(Color.clear).contentShape(Rectangle())
                     .gesture(
                         DragGesture(minimumDistance: 0)
-                            .onChanged { value in
+                            .onChanged { _ in
                                 // Custom tooltip logic if needed
                             }
                     )
                 
-                if let closestItem = findClosestItem(to: value.location, in: proxy, geometry: geometry) {
-                    VStack(alignment: .center) {
-                        Text(closestItem.date, style: .date)
-                            .font(.caption)
-                        Text("\(closestItem.value) pouches")
-                            .font(.headline)
-                        if selectedPeriod == .day24 {
-                            Text(closestItem.date, style: .time)
-                                .font(.caption2)
-                        }
-                    }
-                    .padding(8)
-                    .background(Color.secondary.opacity(0.8))
-                    .cornerRadius(8)
-                    .offset(x: 10, y: 10)
-                }
+                // Tooltip removed - iOS 17+ feature not available
             }
         }
     }
     
     func findClosestItem(to location: CGPoint, in proxy: ChartProxy, geometry: GeometryProxy) -> (date: Date, value: Int)? {
         guard let plotFrame = proxy.plotFrame else { return nil }
-        let relativeX = location.x - plotFrame.origin.x
+        let relativeX = location.x - plotFrame.minX
         
         var closestItem: (date: Date, value: Int)?
         var minDistance: CGFloat = .infinity
