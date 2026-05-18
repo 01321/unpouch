@@ -187,6 +187,11 @@ struct StatsView: View {
                 makeChart()
                     .frame(height: 300)
                     .padding()
+                
+                // Podsumowanie w zaokrąglonym prostokącie
+                summaryBox
+                    .padding(.horizontal)
+                    .padding(.bottom)
             }
             
             Spacer()
@@ -195,6 +200,39 @@ struct StatsView: View {
             ContentView()
                 .environmentObject(dataStore)
         }
+    }
+    
+    var summaryBox: some View {
+        let totalPouches = filteredData.count
+        let totalMg = filteredData.reduce(0) { $0 + $1.strength }
+        
+        return VStack(spacing: 8) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Total Pouches")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text("\(totalPouches)")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("Total mg")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text("\(totalMg)")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                }
+            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.gray.opacity(0.1))
+        )
+        .padding(.horizontal)
     }
     
     @ViewBuilder
@@ -256,16 +294,16 @@ struct StatsView: View {
             // Pokaż co 2 dni dla 7 dni
             return .stride(by: Calendar.Component.day, count: 2)
         case .week2:
-            // Pokaż co 3 dni dla 14 dni
-            return .stride(by: Calendar.Component.day, count: 3)
+            // Pokaż co 4 dni dla 14 dni, żeby się nie nakładały
+            return .stride(by: Calendar.Component.day, count: 4)
         case .month1, .month2:
             return .stride(by: Calendar.Component.weekOfYear, count: 1)
         case .month6:
             // Pokaż co 2 miesiące dla 6M
             return .stride(by: Calendar.Component.month, count: 2)
         case .year1:
-            // Pokaż co 3 miesiące dla 1Y
-            return .stride(by: Calendar.Component.month, count: 3)
+            // Pokaż co 4 miesiące dla 1Y, żeby się nie nakładały
+            return .stride(by: Calendar.Component.month, count: 4)
         }
     }
     
@@ -281,7 +319,7 @@ struct StatsView: View {
     func xAxisFormat(_ date: Date) -> Date.FormatStyle {
         switch selectedPeriod {
         case .day24:
-            return .dateTime.hour()
+            return .dateTime.hour().minute(.omitted)
         case .week1, .week2:
             return .dateTime.day().month(.abbreviated)
         case .month1, .month2:

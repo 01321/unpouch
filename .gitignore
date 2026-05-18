@@ -1,47 +1,68 @@
-# Compiled and build artifacts
-*.pyc
-__pycache__/
+```
+# Build artifacts
 *.o
 *.obj
-*.class
-*.exe
+*.a
+*.lib
 *.dll
 *.so
-*.a
+*.dylib
+*.exe
 *.out
 
+# Xcode/Swift specific
+*.swiftmodule
+*.swiftdoc
+*.sib
+*.sil
+*.dSYM/
+*.app/
+*.ipa
+*.pkg
+*.mpkg
+
 # Dependencies
-node_modules/
-venv/
-.venv/
+Pods/
+Carthage/
+build/
+DerivedData/
+
+# Environment
 .env
 .env.local
 .env.*
+!.env.example
 
-# Logs and temp files
+# Logs
 *.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
 *.tmp
-*.swp
+*.temp
+*.bak
+*.backup
 
 # Editors
 .vscode/
 .idea/
-
-# System files
-.DS_Store
-Thumbs.db
-
-# Build directories
-dist/
-build/
-target/
-.gradle/
+*.swp
+*.swo
 
 # Coverage
 coverage/
 htmlcov/
 .coverage
 
-# Python specific
-.mypy_cache/
-.pytest_cache/
+# Distribution
+dist/
+package/
+```
