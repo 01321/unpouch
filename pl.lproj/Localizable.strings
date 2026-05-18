@@ -21,10 +21,11 @@
 "under_limit_emoji" = "Pod Limitem ✅";
 "stats_24h" = "24H";
 "stats_1w" = "1T";
+"stats_2w" = "2T";
+"stats_1m" = "1M";
 "stats_2m" = "2M";
 "stats_6m" = "6M";
 "stats_1y" = "1R";
-"stats_2y" = "2R";
 "period" = "Okres";
 "pouches_count" = "Pouchy";
 "total_mg" = "Suma Mg";
@@ -48,3 +49,10 @@
 "total_mg_sum" = "Razem MG";
 "accent_color_header" = "Kolor Przewodni";
 "unpouch." = "unpouch.";
+"24h" = "24H";
+"1W" = "1T";
+"2W" = "2T";
+"1M" = "1M";
+"2M" = "2M";
+"6M" = "6M";
+"1Y" = "1R";
