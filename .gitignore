@@ -2,44 +2,62 @@
 # Build artifacts
 *.o
 *.obj
-*.out
-*.dylib
-*.so
 *.a
+*.lib
+*.dll
+*.so
+*.dylib
+*.exe
+*.out
 
-# Xcode/Swift build artifacts
-*.swiftmodule
-*.swiftdoc
-*.dSYM/
+# Xcode
+*.xcodeproj/
+*.xcworkspace/
+*.pbxuser
+*.mode1v3
+*.perspectivev3
+*.xcuserstate
+*.xccheckout
+*.moved-aside
 build/
 DerivedData/
 
-# Dependencies
-Carthage/
-Pods/
-vendor/
+# Swift
+*.swiftmodule
+*.swiftdoc
+*.swiftsourceinfo
 
-# Logs and temp files
-*.log
-*.tmp
-*.swp
+# Dependencies
+Pods/
+Carthage/
+vendor/bundle/
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.egg-info/
+dist/
+target/
+.gradle/
 
 # Environment
 .env
 .env.local
 .env.*
+.envrc
 
 # Editors
 .vscode/
 .idea/
 *.swp
 *.swo
+*.tmp
 
-# Coverage
-coverage/
-htmlcov/
-.coverage
+# Logs
+*.log
+*.out
 
-# macOS
+# OS
 .DS_Store
+Thumbs.db
 ```

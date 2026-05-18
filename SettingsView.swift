@@ -74,7 +74,9 @@ struct SettingsView: View {
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                             ForEach(colorOptions, id: \.code) { colorOption in
                                 Button(action: {
-                                    selectedAccentColor = colorOption.code
+                                    withAnimation {
+                                        selectedAccentColor = colorOption.code
+                                    }
                                     dataStore.settings.accentColor = colorOption.code
                                     dataStore.save()
                                 }) {
@@ -90,6 +92,7 @@ struct SettingsView: View {
                                         }
                                     }
                                 }
+                                .buttonStyle(PlainButtonStyle())
                             }
                         }
                     }
