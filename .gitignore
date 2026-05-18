@@ -2,15 +2,12 @@
 # Build artifacts
 *.o
 *.obj
-*.a
-*.lib
-*.so
-*.dylib
-*.dll
-*.exe
 *.out
+*.dylib
+*.so
+*.a
 
-# Xcode/Swift specific
+# Xcode/Swift build artifacts
 *.swiftmodule
 *.swiftdoc
 *.dSYM/
@@ -18,9 +15,8 @@ build/
 DerivedData/
 
 # Dependencies
-node_modules/
-Pods/
 Carthage/
+Pods/
 vendor/
 
 # Logs and temp files
@@ -36,10 +32,14 @@ vendor/
 # Editors
 .vscode/
 .idea/
+*.swp
 *.swo
-*.swn
 
-# OS generated files
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# macOS
 .DS_Store
-Thumbs.db
 ```

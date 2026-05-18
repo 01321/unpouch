@@ -9,6 +9,7 @@ struct SettingsView: View {
     @State private var selectedLanguage: String = "en"
     @State private var showResetPicker = false
     @State private var showColorPicker = false
+    @State private var selectedAccentColor: String = "blue"
     
     let languages = ["en", "pl", "de"]
     let languageNames = ["English", "Polski", "Deutsch"]
@@ -73,15 +74,16 @@ struct SettingsView: View {
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                             ForEach(colorOptions, id: \.code) { colorOption in
                                 Button(action: {
+                                    selectedAccentColor = colorOption.code
                                     dataStore.settings.accentColor = colorOption.code
-                                    saveSettings()
+                                    dataStore.save()
                                 }) {
                                     ZStack {
                                         Circle()
                                             .fill(colorOption.color)
                                             .frame(width: 50, height: 50)
                                         
-                                        if dataStore.settings.accentColor == colorOption.code {
+                                        if selectedAccentColor == colorOption.code {
                                             Image(systemName: "checkmark")
                                                 .foregroundColor(.white)
                                                 .fontWeight(.bold)
@@ -108,6 +110,7 @@ struct SettingsView: View {
                 dailyLimit = dataStore.settings.dailyLimit
                 resetHour = dataStore.settings.resetHour
                 selectedLanguage = dataStore.settings.language
+                selectedAccentColor = dataStore.settings.accentColor
             }
         }
     }
