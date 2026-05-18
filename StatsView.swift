@@ -94,11 +94,11 @@ struct StatsView: View {
     private var chartStrideCount: Int {
         switch selectedPeriod {
         case .day24: return 4
-        case .week: return 1
+        case .week1, .week2: return 1
+        case .month1: return 5
         case .month2: return 7
         case .month6: return 14
-        case .year: return 1
-        case .year2: return 2
+        case .year1: return 1
         }
     }
 }

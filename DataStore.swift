@@ -80,7 +80,7 @@ class DataStore: ObservableObject {
             }
             return result
             
-        case .week:
+        case .week1:
             startDate = calendar.date(byAdding: .day, value: -7, to: now)!
             for i in 0..<7 {
                 guard let bucketStart = calendar.date(byAdding: .day, value: i, to: startDate) else { continue }
@@ -90,6 +90,26 @@ class DataStore: ObservableObject {
             }
             return result
             
+        case .week2:
+            startDate = calendar.date(byAdding: .day, value: -14, to: now)!
+            for i in 0..<14 {
+                guard let bucketStart = calendar.date(byAdding: .day, value: i, to: startDate) else { continue }
+                guard let bucketEnd = calendar.date(byAdding: .day, value: 1, to: bucketStart) else { continue }
+                let bucketPouches = pouches.filter { $0.date >= bucketStart && $0.date < bucketEnd }
+                result.append((bucketStart, bucketPouches.count, bucketPouches.reduce(0) { $0 + $1.strength }))
+            }
+            return result
+
+        case .month1:
+            startDate = calendar.date(byAdding: .month, value: -1, to: now)!
+            for i in 0..<30 {
+                guard let bucketStart = calendar.date(byAdding: .day, value: i, to: startDate) else { continue }
+                guard let bucketEnd = calendar.date(byAdding: .day, value: 1, to: bucketStart) else { continue }
+                let bucketPouches = pouches.filter { $0.date >= bucketStart && $0.date < bucketEnd }
+                result.append((bucketStart, bucketPouches.count, bucketPouches.reduce(0) { $0 + $1.strength }))
+            }
+            return result
+
         case .month2:
             startDate = calendar.date(byAdding: .month, value: -2, to: now)!
             for i in 0..<60 {
@@ -110,19 +130,9 @@ class DataStore: ObservableObject {
             }
             return result
 
-        case .year:
+        case .year1:
             startDate = calendar.date(byAdding: .year, value: -1, to: now)!
             for i in 0..<12 {
-                guard let bucketStart = calendar.date(byAdding: .month, value: i, to: startDate) else { continue }
-                guard let bucketEnd = calendar.date(byAdding: .month, value: 1, to: bucketStart) else { continue }
-                let bucketPouches = pouches.filter { $0.date >= bucketStart && $0.date < bucketEnd }
-                result.append((bucketStart, bucketPouches.count, bucketPouches.reduce(0) { $0 + $1.strength }))
-            }
-            return result
-
-        case .year2:
-            startDate = calendar.date(byAdding: .year, value: -2, to: now)!
-            for i in 0..<24 {
                 guard let bucketStart = calendar.date(byAdding: .month, value: i, to: startDate) else { continue }
                 guard let bucketEnd = calendar.date(byAdding: .month, value: 1, to: bucketStart) else { continue }
                 let bucketPouches = pouches.filter { $0.date >= bucketStart && $0.date < bucketEnd }
@@ -152,37 +162,78 @@ class DataStore: ObservableObject {
             settings = decodedSettings
         }
     }
+    
+    func generateTestData() {
+        let calendar = Calendar.current
+        let now = Date()
+        var testPouches: [Pouch] = []
+        
+        // Generate data for the last 6 months
+        for dayOffset in 0..<180 {
+            guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: now) else { continue }
+            
+            // Random number of pouches per day (0-8)
+            let pouchesPerDay = Int.random(in: 0...8)
+            
+            for _ in 0..<pouchesPerDay {
+                // Random strength between 10 and 50 mg
+                let strength = [10, 15, 20, 25, 30, 40, 50].randomElement() ?? 20
+                
+                // Random hour within the day
+                let hour = Int.random(in: 8...22)
+                let minute = Int.random(in: 0...59)
+                
+                var pouchDateComponents = calendar.dateComponents([.year, .month, .day], from: date)
+                pouchDateComponents.hour = hour
+                pouchDateComponents.minute = minute
+                pouchDateComponents.second = Int.random(in: 0...59)
+                
+                if let pouchDate = calendar.date(from: pouchDateComponents) {
+                    let pouch = Pouch(date: pouchDate, strength: strength)
+                    testPouches.append(pouch)
+                }
+            }
+        }
+        
+        // Sort by date
+        testPouches.sort { $0.date < $1.date }
+        pouches = testPouches
+        save()
+    }
 }
 
 enum StatsPeriod: String, CaseIterable, Identifiable {
     case day24 = "24H"
-    case week = "1W"
+    case week1 = "1W"
+    case week2 = "2W"
+    case month1 = "1M"
     case month2 = "2M"
     case month6 = "6M"
-    case year = "1Y"
-    case year2 = "2Y"
+    case year1 = "1Y"
     
     var id: String { self.rawValue }
     
     var displayName: String {
         switch self {
-        case .day24: return "24h_period"
-        case .week: return "week_period"
-        case .month2: return "2m_period"
-        case .month6: return "6m_period"
-        case .year: return "year_period"
-        case .year2: return "2y_period"
+        case .day24: return "24h"
+        case .week1: return "1W"
+        case .week2: return "2W"
+        case .month1: return "1M"
+        case .month2: return "2M"
+        case .month6: return "6M"
+        case .year1: return "1Y"
         }
     }
     
     var localizedName: String {
         switch self {
         case .day24: return "24h"
-        case .week: return "week_stats"
-        case .month2: return "2_months"
-        case .month6: return "6_months"
-        case .year: return "year_stats"
-        case .year2: return "2_years"
+        case .week1: return "1W"
+        case .week2: return "2W"
+        case .month1: return "1M"
+        case .month2: return "2M"
+        case .month6: return "6M"
+        case .year1: return "1Y"
         }
     }
 }
