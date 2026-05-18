@@ -4,6 +4,7 @@ struct ContentView: View {
     @EnvironmentObject var dataStore: DataStore
     @State private var showSettings = false
     @State private var showStats = false
+    @State private var showStrengthPicker = false
     
     var body: some View {
         NavigationView {
@@ -43,9 +44,7 @@ struct ContentView: View {
                 VStack(spacing: 20) {
                     // Strength Selector Button
                     Button(action: {
-                        // Could open a sheet to change strength, but for now just cycle or show alert?
-                        // Requirement: "click to change strength". Let's use a simple picker sheet or alert.
-                        // For simplicity in this view, let's make it a button that toggles a sheet.
+                        showStrengthPicker = true
                     }) {
                         HStack {
                             Image(systemName: "bolt.fill")
@@ -109,8 +108,9 @@ struct ContentView: View {
                 Spacer()
                 
                 // Stats Entry Button
-                Button(action: {
-                    showStats = true
+                NavigationLink(destination: {
+                    StatsView()
+                        .environmentObject(dataStore)
                 }) {
                     HStack {
                         Image(systemName: "chart.line.uptrend.xyaxis")
@@ -139,14 +139,8 @@ struct ContentView: View {
                 SettingsView()
                     .environmentObject(dataStore)
             }
-            .navigationDestination(isPresented: $showStats) {
-                StatsView()
-                    .environmentObject(dataStore)
-            }
         }
     }
-    
-    @State private var showStrengthPicker = false
 }
 
 struct LimitStatusView: View {
@@ -196,11 +190,14 @@ struct StrengthPickerView: View {
     @EnvironmentObject var dataStore: DataStore
     @Environment(\.dismiss) var dismiss
     
+    let strengths = Array(stride(from: 0, through: 100, by: 10))
+    
     var body: some View {
         NavigationView {
-            List(Array(stride(from: 0, through: 100, by: 10)), id: \.self) { strength in
+            List(strengths, id: \.self) { strength in
                 Button(action: {
                     dataStore.settings.currentStrength = strength
+                    dataStore.save()
                     dismiss()
                 }) {
                     HStack {
