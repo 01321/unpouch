@@ -172,8 +172,8 @@ class DataStore: ObservableObject {
         for dayOffset in 0..<180 {
             guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: now) else { continue }
             
-            // Random number of pouches per day (0-8)
-            let pouchesPerDay = Int.random(in: 0...8)
+            // Random number of pouches per day (0-15), limit max 15 per day
+            let pouchesPerDay = Int.random(in: 0...15)
             
             for _ in 0..<pouchesPerDay {
                 // Random strength between 10 and 50 mg
