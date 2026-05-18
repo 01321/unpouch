@@ -55,28 +55,66 @@ struct StatsView: View {
             for entry in filteredData {
                 result.append((entry.date, entry.strength))
             }
-        } else {
-            // Agregacja dzienna dla dłuższych okresów
-            var dailySums: [Date: Int] = [:]
+        } else if selectedPeriod == .week1 || selectedPeriod == .week2 || selectedPeriod == .month1 || selectedPeriod == .month2 {
+            // Agregacja tygodniowa dla 1W, 2W, 1M, 2M
+            var weeklySums: [Date: Int] = [:]
             for entry in filteredData {
-                let dayStart = calendar.startOfDay(for: entry.date)
-                dailySums[dayStart, default: 0] += entry.strength
+                // Znajdź początek tygodnia (poniedziałek)
+                var startOfWeek = calendar.startOfDay(for: entry.date)
+                var weekday = calendar.component(.weekday, from: entry.date)
+                // Przesuń do poniedziałku (1 = niedziela w US, więc dostosuj)
+                let firstWeekday = calendar.firstWeekday
+                var daysToMonday = weekday - firstWeekday + 1
+                if daysToMonday <= 0 {
+                    daysToMonday += 7
+                }
+                startOfWeek = calendar.date(byAdding: .day, value: -daysToMonday + 1, to: startOfWeek) ?? startOfWeek
+                
+                weeklySums[startOfWeek, default: 0] += entry.strength
             }
             
-            // Wypełnianie luk zerami, aby wykres był ciągły
+            // Wypełnij tygodnie zerami
             let endDate = Date()
             guard let startDate = calendar.date(byAdding: .day, value: -selectedPeriod.days, to: endDate) else {
                 return []
             }
             
-            var currentDate = startDate
+            var currentDate = calendar.startOfDay(for: startDate)
+            // Dostosuj do początku tygodnia
+            var weekday = calendar.component(.weekday, from: currentDate)
+            let firstWeekday = calendar.firstWeekday
+            var daysToMonday = weekday - firstWeekday + 1
+            if daysToMonday <= 0 {
+                daysToMonday += 7
+            }
+            currentDate = calendar.date(byAdding: .day, value: -daysToMonday + 1, to: currentDate) ?? currentDate
+            
             while currentDate <= endDate {
-                let dayStart = calendar.startOfDay(for: currentDate)
-                let value = dailySums[dayStart] ?? 0
-                if currentDate <= endDate {
-                     result.append((dayStart, value))
-                }
-                currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate) ?? endDate
+                let value = weeklySums[currentDate] ?? 0
+                result.append((currentDate, value))
+                currentDate = calendar.date(byAdding: .weekOfYear, value: 1, to: currentDate) ?? endDate
+            }
+        } else {
+            // Agregacja miesięczna dla 6M i 1Y
+            var monthlySums: [Date: Int] = [:]
+            for entry in filteredData {
+                // Znajdź początek miesiąca
+                let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: entry.date)) ?? entry.date
+                monthlySums[monthStart, default: 0] += entry.strength
+            }
+            
+            // Wypełnij miesiące zerami
+            let endDate = Date()
+            guard let startDate = calendar.date(byAdding: .day, value: -selectedPeriod.days, to: endDate) else {
+                return []
+            }
+            
+            var currentDate = calendar.date(from: calendar.dateComponents([.year, .month], from: startDate)) ?? startDate
+            
+            while currentDate <= endDate {
+                let value = monthlySums[currentDate] ?? 0
+                result.append((currentDate, value))
+                currentDate = calendar.date(byAdding: .month, value: 1, to: currentDate) ?? endDate
             }
         }
         return result
@@ -185,8 +223,7 @@ struct StatsView: View {
     func xAxisStride() -> Calendar.Component {
         switch selectedPeriod {
         case .day24: return .hour
-        case .week1, .week2: return .day
-        case .month1, .month2: return .day
+        case .week1, .week2, .month1, .month2: return .weekOfYear
         case .month6, .year1: return .month
         }
     }
@@ -195,12 +232,10 @@ struct StatsView: View {
         switch selectedPeriod {
         case .day24:
             return .dateTime.hour().minute()
-        case .week1, .week2:
-            return .dateTime.weekday(.abbreviated).day()
-        case .month1, .month2:
+        case .week1, .week2, .month1, .month2:
             return .dateTime.day().month(.abbreviated)
         case .month6, .year1:
-            return .dateTime.month(.abbreviated)
+            return .dateTime.month(.abbreviated).year()
         }
     }
 }
