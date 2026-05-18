@@ -10,72 +10,43 @@
 *.exe
 *.out
 
-# Xcode/Swift specific
+# Xcode
+build/
 *.xcodeproj/
 *.xcworkspace/
-*.swiftmodule/
-*.swiftdoc
-*.smap
-*.dat
-*.dSYM/
-build/
 DerivedData/
+*.app/
+
+# Swift
+*.swiftmodule
+*.swiftdoc
 
 # Dependencies
 Pods/
 Carthage/
-vendor/bundle/
-node_modules/
-.venv/
-venv/
-.env
-.env.local
-*.env.*
+vendor/
 
 # Logs
 *.log
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# Environment
+.env
+.env.local
+.env.*
 
-# Temporary files
-*.tmp
-*.temp
-*.bak
-*.backup
-
-# Coverage reports
-coverage/
-htmlcov/
-.coverage
-
-# IDE specific
+# Editor
 .vscode/
 .idea/
 *.swp
 *.swo
+*.tmp
 
-# Distribution / packaging
-dist/
-pkg/
-*.zip
-*.tar.gz
-*.dmg
+# OS
+.DS_Store
+Thumbs.db
 
-# Testing
-*.test
-*.tests
-
-# Swift Package Manager
-.swiftpm/
-Package.resolved
-
-# Localizable strings build artifacts (if any)
-*.stringsdict
+# Coverage
+coverage/
+htmlcov/
+.coverage
 ```

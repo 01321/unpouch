@@ -13,7 +13,7 @@ struct StatsView: View {
             VStack(spacing: 20) {
                 // Period Selector
                 Picker("period", selection: $selectedPeriod) {
-                    ForEach(StatsPeriod.allCases, id: \.self) { period in
+                    ForEach(StatsPeriod.allCases) { period in
                         Text(period.localizableKey).tag(period)
                     }
                 }
