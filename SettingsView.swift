@@ -76,16 +76,15 @@ struct SettingsView: View {
                                 Button(action: {
                                     withAnimation {
                                         selectedAccentColor = colorOption.code
+                                        dataStore.updateAccentColor(colorOption.code)
                                     }
-                                    dataStore.settings.accentColor = colorOption.code
-                                    dataStore.save()
                                 }) {
                                     ZStack {
                                         Circle()
                                             .fill(colorOption.color)
                                             .frame(width: 50, height: 50)
                                         
-                                        if selectedAccentColor == colorOption.code {
+                                        if dataStore.settings.accentColor == colorOption.code {
                                             Image(systemName: "checkmark")
                                                 .foregroundColor(.white)
                                                 .fontWeight(.bold)

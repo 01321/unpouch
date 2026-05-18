@@ -31,6 +31,12 @@ class DataStore: ObservableObject {
         save()
     }
     
+    func updateAccentColor(_ color: String) {
+        objectWillChange.send()
+        settings.accentColor = color
+        save()
+    }
+    
     func getTodayStats() -> (count: Int, totalMg: Int) {
         let now = Date()
         let calendar = Calendar.current
