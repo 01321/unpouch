@@ -8,10 +8,10 @@ struct StatsView: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            // Period Selector
+            // Period Selector with readable labels
             Picker("period", selection: $selectedPeriod) {
                 ForEach(StatsPeriod.allCases) { period in
-                    Text(period.displayName).tag(period)
+                    Text(period.localizedName).tag(period)
                 }
             }
             .pickerStyle(.segmented)
@@ -52,7 +52,7 @@ struct StatsView: View {
                 .chartYAxis {
                     AxisMarks(position: .leading)
                 }
-                .chartYScale(domain: 0...)
+                .chartYScale(domain: 0...(max(1, stats.map { $0.count }.max() ?? 1)))
                 .frame(height: 300)
                 
                 // Summary Section
@@ -85,6 +85,7 @@ struct StatsView: View {
             Spacer()
         }
         .navigationTitle("statistics")
+        .navigationBarTitleDisplayMode(.inline)
         .onChange(of: selectedPeriod) { _ in
             // Reset any selection when period changes
         }

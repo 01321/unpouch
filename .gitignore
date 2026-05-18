@@ -1,37 +1,57 @@
 ```
-# Swift/Xcode
-*.swiftmodule
-*.swiftdoc
-*.xcworkspacedata
+# Build artifacts
+*.o
+*.obj
+*.a
+*.lib
+*.dylib
+*.so
+*.dll
+*.exe
+*.out
+
+# Xcode
 *.xcodeproj/
 *.xcworkspace/
+*.xcuserdatad/
 DerivedData/
 build/
 *.app
 *.ipa
 *.dSYM
 
-# Localizations
-*.lproj/*.strings~
+# Swift
+*.swiftmodule
+*.swiftdoc
+
+# Dependencies
+Carthage/
+Pods/
+vendor/
+
+# Logs
+*.log
 
 # Environment
 .env
 .env.local
 *.env.*
 
-# Dependencies
-Pods/
-Carthage/
-vendor/
-
-# Logs
-*.log
-
-# OS generated files
-.DS_Store
-Thumbs.db
-
 # Temporary files
 *.tmp
 *.temp
+*~
+.DS_Store
+Thumbs.db
+
+# Testing
+.coverage
+coverage/
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
 ```

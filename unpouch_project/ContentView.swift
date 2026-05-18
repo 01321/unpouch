@@ -201,7 +201,7 @@ struct StrengthPickerView: View {
         NavigationView {
             List {
                 Section(header: Text("available_strengths")) {
-                    ForEach(dataStore.settings.usedStrengths(), id: \\.self) { strength in
+                    ForEach(dataStore.settings.usedStrengths(), id: \.self) { strength in
                         Button(action: {
                             dataStore.settings.currentStrength = strength
                             dataStore.save()
