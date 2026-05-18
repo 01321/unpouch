@@ -59,8 +59,10 @@ class DataStore: ObservableObject {
         }
         
         // Apply language change immediately
-        UserDefaults.standard.set([settings.languageCode], forKey: "AppleLanguages")
-        UserDefaults.standard.synchronize()
+        if let languageCode = settings.languageCode, !languageCode.isEmpty {
+            UserDefaults.standard.set([languageCode], forKey: "AppleLanguages")
+            UserDefaults.standard.synchronize()
+        }
     }
     
     private func loadSettings() {
@@ -70,8 +72,10 @@ class DataStore: ObservableObject {
         }
         
         // Apply saved language on startup
-        UserDefaults.standard.set([settings.languageCode], forKey: "AppleLanguages")
-        UserDefaults.standard.synchronize()
+        if !settings.languageCode.isEmpty {
+            UserDefaults.standard.set([settings.languageCode], forKey: "AppleLanguages")
+            UserDefaults.standard.synchronize()
+        }
     }
     
     func getTodayPouches() -> [Pouch] {
@@ -138,8 +142,20 @@ class DataStore: ObservableObject {
     }
     
     func getUsedStrengths() -> [Int] {
-        let strengths = Set(pouches.map { $0.strength })
-        return strengths.sorted()
+        var counts: [Int: Int] = [:]
+        for pouch in pouches {
+            counts[pouch.strength, default: 0] += 1
+        }
+        
+        // Sort by usage count descending, then by strength ascending
+        let sorted = counts.sorted { (a, b) in
+            if a.value != b.value {
+                return a.value > b.value
+            }
+            return a.key < b.key
+        }
+        
+        return sorted.map { $0.key }
     }
     
     func addCustomStrength(_ strength: Int) {
@@ -158,7 +174,7 @@ class DataStore: ObservableObject {
 
 struct AppSettings: Codable {
     var dailyLimit: Int = 10
-    var languageCode: String = "en"
+    var languageCode: String = ""
     var themeColor: String = "blue"
     var customStrengths: [Int] = []
 }
