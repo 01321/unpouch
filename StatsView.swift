@@ -37,7 +37,9 @@ struct StatsView: View {
             return []
         }
         
-        var entries = dataStore.entries.filter { $0.date >= startDate && $0.date <= now }
+        var entries = dataStore.entries.filter { entry in
+            return entry.date >= startDate && entry.date <= now
+        }
         entries.sort { $0.date < $1.date }
         return entries
     }
@@ -72,7 +74,6 @@ struct StatsView: View {
             while currentDate <= endDate {
                 let dayStart = calendar.startOfDay(for: currentDate)
                 let value = dailySums[dayStart] ?? 0
-                // Pomijamy dni z końcówki zakresu, które są w przyszłości lub mają 0 i są poza zakresem danych
                 if currentDate <= endDate {
                      result.append((dayStart, value))
                 }
@@ -136,21 +137,16 @@ struct StatsView: View {
     func makeChart() -> some View {
         Chart(chartData, id: \.date) { item in
             LineMark(
-                x: .value("Date", item.date, unit: .hour),
+                x: .value("Date", item.date),
                 y: .value("Count", item.value)
             )
             .interpolationMethod(.linear) // Ostry wykres (liniowy)
-            .symbol(Circle().stroke(lineWidth: 2))
+            .symbol(.circle)
             
             PointMark(
-                x: .value("Date", item.date, unit: .hour),
+                x: .value("Date", item.date),
                 y: .value("Count", item.value)
             )
-            .annotation(position: .overlay) {
-                if selectedPeriod == .day24 {
-                    // Pokaż godzinę tylko dla 24h przy punktach, jeśli chcemy, ale dymek obsłuży to lepiej
-                }
-            }
         }
         .chartXAxis {
             AxisMarks(values: .stride(by: xAxisStride())) { value in
@@ -168,31 +164,58 @@ struct StatsView: View {
                     .gesture(
                         DragGesture(minimumDistance: 0)
                             .onChanged { value in
-                                // Logika dymka jest obsługiwana natywnie przez Chart w nowszych iOS
-                                // lub można dodać custom overlay jeśli potrzebny jest specyficzny styl
+                                // Interakcja obsługiwana przez chartTooltip
                             }
                     )
             }
         }
-        .chartTooltip { proxy in
-            if let date = proxy.index(as: Date.self),
-               let item = chartData.first(where: { Calendar.current.isDate($0.date, inSameDayAs: date) && ($0.date.timeIntervalSince(date) > -3600 && $0.date.timeIntervalSince(date) < 3600) || abs($0.date.timeIntervalSince(date)) < 3600 }) {
+        .chartOverlay { proxy in
+            ZStack(alignment: .topLeading) {
+                Rectangle().fill(Color.clear).contentShape(Rectangle())
+                    .gesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { value in
+                                // Custom tooltip logic if needed
+                            }
+                    )
                 
-                VStack(alignment: .center) {
-                    Text(item.date, style: .date)
-                        .font(.caption)
-                    Text("\(item.value) pouches")
-                        .font(.headline)
-                    if selectedPeriod == .day24 {
-                        Text(item.date, style: .time)
-                            .font(.caption2)
+                if let closestItem = findClosestItem(to: value.location, in: proxy, geometry: geometry) {
+                    VStack(alignment: .center) {
+                        Text(closestItem.date, style: .date)
+                            .font(.caption)
+                        Text("\(closestItem.value) pouches")
+                            .font(.headline)
+                        if selectedPeriod == .day24 {
+                            Text(closestItem.date, style: .time)
+                                .font(.caption2)
+                        }
                     }
+                    .padding(8)
+                    .background(Color.secondary.opacity(0.8))
+                    .cornerRadius(8)
+                    .offset(x: 10, y: 10)
                 }
-                .padding(8)
-                .background(Color.secondary.opacity(0.8))
-                .cornerRadius(8)
             }
         }
+    }
+    
+    func findClosestItem(to location: CGPoint, in proxy: ChartProxy, geometry: GeometryProxy) -> (date: Date, value: Int)? {
+        guard let plotFrame = proxy.plotFrame else { return nil }
+        let relativeX = location.x - plotFrame.origin.x
+        
+        var closestItem: (date: Date, value: Int)?
+        var minDistance: CGFloat = .infinity
+        
+        for item in chartData {
+            if let xPos = proxy.position(forX: item.date) {
+                let distance = abs(xPos - location.x)
+                if distance < minDistance && distance < 20 { // Tolerance
+                    minDistance = distance
+                    closestItem = item
+                }
+            }
+        }
+        return closestItem
     }
     
     func xAxisStride() -> Calendar.Component {
@@ -213,7 +236,7 @@ struct StatsView: View {
         case .month1, .month2:
             return .dateTime.day().month(.abbreviated)
         case .month6, .year1:
-            return .dateTime.month(.abbreviated).year()
+            return .dateTime.month(.abbreviated)
         }
     }
 }
