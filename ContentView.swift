@@ -131,8 +131,6 @@ struct ContentView: View {
                 .padding(.horizontal)
                 .padding(.bottom, 20)
             }
-            .navigationTitle("")
-            .toolbar(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showSettings = true }) {
