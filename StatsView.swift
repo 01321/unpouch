@@ -51,18 +51,35 @@ struct StatsView: View {
         guard !filteredData.isEmpty else { return [] }
         
         if selectedPeriod == .day24 {
-            // Dla 24h pokazujemy każdą rejestrację z godziną
+            // Dla 24h pokazujemy każdą rejestrację z godziną (zaokrągloną do godziny)
             for entry in filteredData {
-                result.append((entry.date, entry.strength))
+                let hourStart = calendar.date(bySettingHour: calendar.component(.hour, from: entry.date),
+                                              minute: 0, second: 0, of: entry.date) ?? entry.date
+                result.append((hourStart, entry.strength))
             }
-        } else if selectedPeriod == .week1 || selectedPeriod == .week2 || selectedPeriod == .month1 || selectedPeriod == .month2 {
-            // Agregacja tygodniowa dla 1W, 2W, 1M, 2M
+        } else if selectedPeriod == .week1 || selectedPeriod == .week2 {
+            // Dla 1W i 2W - ostatnie 7/14 dni, dane dzienne bez agregacji
+            let endDate = Date()
+            guard let startDate = calendar.date(byAdding: .day, value: -selectedPeriod.days + 1, to: endDate) else {
+                return []
+            }
+            
+            // Wypełnij wszystkie dni zerami
+            var currentDate = calendar.startOfDay(for: startDate)
+            while currentDate <= endDate {
+                let daySum = filteredData.filter { entry in
+                    calendar.isDate(entry.date, inSameDayAs: currentDate)
+                }.reduce(0) { $0 + $1.strength }
+                result.append((currentDate, daySum))
+                currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate) ?? endDate
+            }
+        } else if selectedPeriod == .month1 || selectedPeriod == .month2 {
+            // Dla 1M i 2M - dane tygodniowe (suma z tygodnia)
             var weeklySums: [Date: Int] = [:]
             for entry in filteredData {
                 // Znajdź początek tygodnia (poniedziałek)
                 var startOfWeek = calendar.startOfDay(for: entry.date)
                 var weekday = calendar.component(.weekday, from: entry.date)
-                // Przesuń do poniedziałku (1 = niedziela w US, więc dostosuj)
                 let firstWeekday = calendar.firstWeekday
                 var daysToMonday = weekday - firstWeekday + 1
                 if daysToMonday <= 0 {
@@ -223,7 +240,8 @@ struct StatsView: View {
     func xAxisStride() -> Calendar.Component {
         switch selectedPeriod {
         case .day24: return .hour
-        case .week1, .week2, .month1, .month2: return .weekOfYear
+        case .week1, .week2: return .day
+        case .month1, .month2: return .weekOfYear
         case .month6, .year1: return .month
         }
     }
@@ -231,8 +249,10 @@ struct StatsView: View {
     func xAxisFormat(_ date: Date) -> Date.FormatStyle {
         switch selectedPeriod {
         case .day24:
-            return .dateTime.hour().minute()
-        case .week1, .week2, .month1, .month2:
+            return .dateTime.hour()
+        case .week1, .week2:
+            return .dateTime.day().month(.abbreviated)
+        case .month1, .month2:
             return .dateTime.day().month(.abbreviated)
         case .month6, .year1:
             return .dateTime.month(.abbreviated).year()
