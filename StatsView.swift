@@ -51,7 +51,7 @@ struct StatsView: View {
         guard !filteredData.isEmpty else { return [] }
         
         if selectedPeriod == .day24 {
-            // Dla 24h pokazujemy każdą rejestrację z godziną (zaokrągloną do godziny)
+            // Dla 24h - pełne 24 godziny, ale etykiety tylko tam gdzie są zmiany
             let endDate = Date()
             guard let startDate = calendar.date(byAdding: .hour, value: -23, to: endDate) else {
                 return []
@@ -60,6 +60,14 @@ struct StatsView: View {
             // Wypełnij wszystkie godziny zerami
             var currentDate = calendar.date(bySettingHour: calendar.component(.hour, from: startDate),
                                            minute: 0, second: 0, of: startDate) ?? startDate
+            
+            // Znajdź godziny, w których były zmiany (dla etykiet)
+            var hoursWithChanges: Set<Int> = []
+            for entry in filteredData {
+                let hour = calendar.component(.hour, from: entry.date)
+                hoursWithChanges.insert(hour)
+            }
+            
             while currentDate <= endDate {
                 let hourCount = filteredData.filter { entry in
                     calendar.isDate(entry.date, equalTo: currentDate, toGranularity: .hour)
@@ -191,6 +199,11 @@ struct StatsView: View {
                 // Podsumowanie w zaokrąglonym prostokącie
                 summaryBox
                     .padding(.horizontal)
+                    .padding(.bottom, 8)
+                
+                // Koszt w zaokrąglonym prostokącie
+                costBox
+                    .padding(.horizontal)
                     .padding(.bottom)
             }
             
@@ -235,6 +248,40 @@ struct StatsView: View {
         .padding(.horizontal)
     }
     
+    var costBox: some View {
+        let totalPouches = filteredData.count
+        let costPerPouch = 1.05
+        let totalCost = Double(totalPouches) * costPerPouch
+        
+        return VStack(spacing: 8) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Estimated Cost")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text(String(format: "%.2f zł", totalCost))
+                        .font(.title2)
+                        .fontWeight(.bold)
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("Per pouch")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Text(String(format: "%.2f zł", costPerPouch))
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.gray.opacity(0.1))
+        )
+        .padding(.horizontal)
+    }
+    
     @ViewBuilder
     func makeChart() -> some View {
         Chart(chartData, id: \.date) { item in
@@ -266,37 +313,33 @@ struct StatsView: View {
                 }
             }
         }
-        .chartOverlay { proxy in
-            GeometryReader { geometry in
-                Rectangle().fill(Color.clear).contentShape(Rectangle())
-                    .gesture(
-                        DragGesture(minimumDistance: 0)
-                            .onChanged { _ in
-                                // Interakcja obsługiwana przez chartTooltip
-                            }
-                    )
-            }
-        }
-        .chartOverlay { proxy in
-            ZStack(alignment: .topLeading) {
-                Rectangle().fill(Color.clear).contentShape(Rectangle())
-                    .gesture(
-                        DragGesture(minimumDistance: 0)
-                            .onChanged { _ in
-                                // Custom tooltip logic if needed
-                            }
-                    )
-                
-                // Tooltip removed - iOS 17+ feature not available
-            }
-        }
+        .chartYScale(domain: 0...) // Zawsze zaczynaj od 0, żeby wykres nie "malal"
     }
     
     
     func xAxisValues() -> AxisMarkValues {
         switch selectedPeriod {
         case .day24:
-            return .stride(by: Calendar.Component.hour, count: 1)
+            // Dla 24h - pokazuj tylko godziny, w których były zmiany
+            let hoursWithChanges = Set(filteredData.map { Calendar.current.component(.hour, from: $0.date) })
+            if hoursWithChanges.isEmpty {
+                return .stride(by: Calendar.Component.hour, count: 6)
+            }
+            // Zwróć customowe wartości dla godzin ze zmianami
+            let calendar = Calendar.current
+            let now = Date()
+            guard let startDate = calendar.date(byAdding: .hour, value: -23, to: now) else {
+                return .stride(by: Calendar.Component.hour, count: 6)
+            }
+            var datesWithChanges: [Date] = []
+            for hour in hoursWithChanges.sorted() {
+                if let date = calendar.date(bySettingHour: hour, minute: 0, second: 0, of: now) {
+                    if date >= startDate && date <= now {
+                        datesWithChanges.append(date)
+                    }
+                }
+            }
+            return .custom(datesWithChanges)
         case .week1:
             // Pokaż co 3 dni dla 7 dni
             return .stride(by: Calendar.Component.day, count: 3)
