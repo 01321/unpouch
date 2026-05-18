@@ -70,7 +70,6 @@ class DataStore: ObservableObject {
             // Group by hour for 24h? Or just show total? Let's group by hour for detail.
             // Actually, request said: "week -> per day", "year -> per month".
             // For 24h, let's show per hour.
-            var current = calendar.startOfDay(for: startDate)
             // Simplified: just return one point for 24h if needed, but chart needs points.
             // Let's stick to the rule: smallest unit based on range.
             // 24h -> hours.
@@ -156,13 +155,15 @@ class DataStore: ObservableObject {
     }
 }
 
-enum StatsPeriod: String, CaseIterable {
+enum StatsPeriod: String, CaseIterable, Identifiable {
     case day24 = "24H"
     case week = "1W"
     case month2 = "2M"
     case month6 = "6M"
     case year = "1Y"
     case year2 = "2Y"
+    
+    var id: String { self.rawValue }
     
     var localizableKey: String {
         switch self {
