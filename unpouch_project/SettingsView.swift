@@ -8,9 +8,19 @@ struct SettingsView: View {
     @State private var resetHour: Int = 1
     @State private var selectedLanguage: String = "en"
     @State private var showResetPicker = false
+    @State private var showColorPicker = false
     
     let languages = ["en", "pl", "de"]
     let languageNames = ["English", "Polski", "Deutsch"]
+    
+    let colorOptions: [(name: String, code: String, color: Color)] = [
+        ("blue", "blue", .blue),
+        ("red", "red", .red),
+        ("green", "green", .green),
+        ("purple", "purple", .purple),
+        ("orange", "orange", .orange),
+        ("pink", "pink", .pink)
+    ]
     
     var body: some View {
         NavigationView {
@@ -39,7 +49,7 @@ struct SettingsView: View {
                         }
                     }
                     .confirmationDialog("select_reset_time", isPresented: $showResetPicker) {
-                        ForEach(0..<24, id: \.self) { hour in
+                        ForEach(0..<24, id: \\.self) { hour in
                             Button(String(format: "%02d:00", hour)) {
                                 resetHour = hour
                             }
@@ -49,13 +59,39 @@ struct SettingsView: View {
                 
                 Section(header: Text("language_header")) {
                     Picker("language", selection: $selectedLanguage) {
-                        ForEach(0..<languages.count, id: \.self) { index in
+                        ForEach(0..<languages.count, id: \\.self) { index in
                             Text(languageNames[index]).tag(languages[index])
                         }
                     }
-                    .onChange(of: selectedLanguage) { newLanguage in
+                    .onChange(of: selectedLanguage) { _ in
                         saveSettings()
                     }
+                }
+                
+                Section(header: Text("accent_color_header")) {
+                    VStack(spacing: 12) {
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                            ForEach(colorOptions, id: \\.code) { colorOption in
+                                Button(action: {
+                                    dataStore.settings.accentColor = colorOption.code
+                                    saveSettings()
+                                }) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(colorOption.color)
+                                            .frame(width: 50, height: 50)
+                                        
+                                        if dataStore.settings.accentColor == colorOption.code {
+                                            Image(systemName: "checkmark")
+                                                .foregroundColor(.white)
+                                                .fontWeight(.bold)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .padding(.vertical, 8)
                 }
             }
             .navigationTitle("settings")
@@ -79,7 +115,6 @@ struct SettingsView: View {
     private func saveSettings() {
         dataStore.updateSettings(dailyLimit: dailyLimit, resetHour: resetHour, language: selectedLanguage)
         
-        // Force update of the app's locale
         if let bundleIdentifier = Bundle.main.bundleIdentifier {
             UserDefaults.standard.set([selectedLanguage], forKey: "AppleLanguages")
             UserDefaults.standard.synchronize()

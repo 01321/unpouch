@@ -3,12 +3,17 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var dataStore: DataStore
     @State private var showSettings = false
-    @State private var showStats = false
     @State private var showStrengthPicker = false
     
     var body: some View {
         NavigationView {
             VStack(spacing: 30) {
+                // Title at the top
+                Text("unpouch.")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .padding(.top, 20)
+                
                 // Top Stats Section
                 VStack(spacing: 10) {
                     Text("today")
@@ -22,7 +27,7 @@ struct ContentView: View {
                         .font(.system(size: 60, weight: .bold, design: .rounded))
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [.blue, .cyan],
+                                colors: [dataStore.settings.resolvedAccentColor, dataStore.settings.resolvedAccentColor.opacity(0.7)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -36,7 +41,6 @@ struct ContentView: View {
                     // Limit Status
                     LimitStatusView(count: stats.count, limit: dataStore.settings.dailyLimit)
                 }
-                .padding(.top, 20)
                 
                 Spacer()
                 
@@ -70,13 +74,13 @@ struct ContentView: View {
                             Circle()
                                 .fill(
                                     LinearGradient(
-                                        colors: [Color.blue.opacity(0.8), Color.cyan.opacity(0.9)],
+                                        colors: [dataStore.settings.resolvedAccentColor.opacity(0.8), dataStore.settings.resolvedAccentColor.opacity(0.9)],
                                         startPoint: .topLeading,
                                         endPoint: .bottomTrailing
                                     )
                                 )
                                 .frame(width: 220, height: 220)
-                                .shadow(color: .blue.opacity(0.4), radius: 15, x: 0, y: 10)
+                                .shadow(color: dataStore.settings.resolvedAccentColor.opacity(0.4), radius: 15, x: 0, y: 10)
                             
                             VStack(spacing: 5) {
                                 Image(systemName: "plus.circle.fill")
@@ -120,18 +124,19 @@ struct ContentView: View {
                     .foregroundColor(.white)
                     .padding()
                     .frame(maxWidth: .infinity)
-                    .background(Color.blue)
+                    .background(dataStore.settings.resolvedAccentColor)
                     .cornerRadius(15)
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 20)
             }
-            .navigationTitle("unpouch.")
+            .navigationTitle("")
+            .toolbar(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showSettings = true }) {
                         Image(systemName: "gearshape.fill")
-                            .foregroundColor(.blue)
+                            .foregroundColor(dataStore.settings.resolvedAccentColor)
                     }
                 }
             }
@@ -140,6 +145,7 @@ struct ContentView: View {
                     .environmentObject(dataStore)
             }
         }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 
@@ -161,7 +167,7 @@ struct LimitStatusView: View {
             if diff == -1 {
                 return "limit_slightly_under"
             } else {
-                return "limit_under"
+                return "under_limit_emoji"
             }
         }
     }
@@ -189,24 +195,37 @@ struct LimitStatusView: View {
 struct StrengthPickerView: View {
     @EnvironmentObject var dataStore: DataStore
     @Environment(\.dismiss) var dismiss
-    
-    let strengths = Array(stride(from: 0, through: 100, by: 10))
+    @State private var showCustomStrengthSheet = false
     
     var body: some View {
         NavigationView {
-            List(strengths, id: \.self) { strength in
-                Button(action: {
-                    dataStore.settings.currentStrength = strength
-                    dataStore.save()
-                    dismiss()
-                }) {
-                    HStack {
-                        Text("\(strength) mg")
-                        Spacer()
-                        if dataStore.settings.currentStrength == strength {
-                            Image(systemName: "checkmark")
-                                .foregroundColor(.blue)
+            List {
+                Section(header: Text("available_strengths")) {
+                    ForEach(dataStore.settings.usedStrengths(), id: \\.self) { strength in
+                        Button(action: {
+                            dataStore.settings.currentStrength = strength
+                            dataStore.save()
+                            dismiss()
+                        }) {
+                            HStack {
+                                Text("\(strength) mg")
+                                Spacer()
+                                if dataStore.settings.currentStrength == strength {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(dataStore.settings.resolvedAccentColor)
+                                }
+                            }
                         }
+                    }
+                }
+                
+                Section {
+                    Button(action: { showCustomStrengthSheet = true }) {
+                        HStack {
+                            Image(systemName: "plus.circle.fill")
+                            Text("add_custom_strength")
+                        }
+                        .foregroundColor(dataStore.settings.resolvedAccentColor)
                     }
                 }
             }
@@ -214,6 +233,48 @@ struct StrengthPickerView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("done") { dismiss() }
+                }
+            }
+            .sheet(isPresented: $showCustomStrengthSheet) {
+                CustomStrengthInputView(showSheet: $showCustomStrengthSheet)
+                    .environmentObject(dataStore)
+            }
+        }
+    }
+}
+
+struct CustomStrengthInputView: View {
+    @EnvironmentObject var dataStore: DataStore
+    @Binding var showSheet: Bool
+    @State private var customStrengthValue = ""
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section(header: Text("enter_custom_strength")) {
+                    TextField("strength_mg", text: $customStrengthValue)
+                        .keyboardType(.numberPad)
+                }
+            }
+            .navigationTitle("custom_strength")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("cancel") {
+                        showSheet = false
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("add") {
+                        if let value = Int(customStrengthValue), value > 0 && value <= 200 {
+                            if !dataStore.settings.customStrengths.contains(value) {
+                                dataStore.settings.customStrengths.append(value)
+                                dataStore.settings.currentStrength = value
+                                dataStore.save()
+                            }
+                            showSheet = false
+                        }
+                    }
+                    .fontWeight(.bold)
                 }
             }
         }
