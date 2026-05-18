@@ -10,140 +10,11 @@ struct StatsView: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            // Back button and Period Selector
-            HStack {
-                Button(action: {
-                    dismiss()
-                }) {
-                    Image(systemName: "chevron.left")
-                        .font(.title2)
-                        .foregroundColor(dataStore.settings.resolvedAccentColor)
-                }
-                
-                Spacer()
-                
-                Picker("period", selection: $selectedPeriod) {
-                    ForEach(StatsPeriod.allCases) { period in
-                        Text(period.localizedName).tag(period)
-                    }
-                }
-                .pickerStyle(.segmented)
-                
-                Spacer()
-                
-                // Invisible spacer to balance the back button
-                Color.clear.frame(width: 30)
-            }
-            .padding(.horizontal)
+            headerView
             
-            // Chart
-            if #available(iOS 16.0, *) {
-                let stats = dataStore.getStatsForPeriod(selectedPeriod)
-                
-                Chart(stats, id: \.date) { point in
-                    LineMark(
-                        x: .value("date", point.date),
-                        y: .value("count", max(0, point.count))
-                    )
-                    .interpolationMethod(.linear)
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [dataStore.settings.resolvedAccentColor, dataStore.settings.resolvedAccentColor.opacity(0.5)],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    
-                    AreaMark(
-                        x: .value("date", point.date),
-                        y: .value("count", max(0, point.count))
-                    )
-                    .interpolationMethod(.linear)
-                    .foregroundStyle(dataStore.settings.resolvedAccentColor.opacity(0.2))
-                }
-                .chartXAxis {
-                    AxisMarks(values: .stride(by: xAxisStride, count: 1)) { value in
-                        if let date = value.as(Date.self) {
-                            if selectedPeriod == .day24 {
-                                AxisValueLabel(format: .dateTime.hour(), centered: true)
-                            } else if selectedPeriod == .month6 || selectedPeriod == .year1 {
-                                AxisValueLabel(format: .dateTime.month().day(), centered: true)
-                            } else {
-                                AxisValueLabel(format: .dateTime.day().month(), centered: true)
-                            }
-                        }
-                    }
-                }
-                .chartYAxis {
-                    AxisMarks(position: .leading)
-                }
-                .chartYScale(domain: 0...(max(1, stats.map { $0.count }.max() ?? 1)))
-                .frame(height: 300)
-                .onTapGesture { location in
-                    // Find the closest data point to the tap location
-                    if let chartFrame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width - 40, height: 300),
-                       chartFrame.contains(location) {
-                        let relativeX = (location.x - chartFrame.minX) / chartFrame.width
-                        let index = Int(relativeX * Double(stats.count))
-                        if index >= 0 && index < stats.count {
-                            selectedPoint = stats[index]
-                        }
-                    }
-                }
-                .overlay(
-                    Group {
-                        if let point = selectedPoint {
-                            VStack {
-                                Text(formatDateForTooltip(point.date, for: selectedPeriod))
-                                    .font(.caption)
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(Color.black.opacity(0.8))
-                                    .cornerRadius(4)
-                                
-                                Text("\(point.count) pouches\n\(point.mg) mg")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                    .padding(8)
-                                    .background(dataStore.settings.resolvedAccentColor)
-                                    .cornerRadius(8)
-                                    .shadow(radius: 5)
-                                
-                                Spacer()
-                            }
-                            .padding()
-                            .transition(.scale.combined(with: .opacity))
-                        }
-                    }
-                )
-                
-                // Summary Section
-                VStack(spacing: 10) {
-                    HStack(spacing: 20) {
-                        VStack {
-                            Text("total_pouches")
-                                .foregroundColor(.secondary)
-                            Text("\(stats.reduce(0) { $0 + $1.count })")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                        }
-                        VStack {
-                            Text("total_mg_sum")
-                                .foregroundColor(.secondary)
-                            Text("\(stats.reduce(0) { $0 + $1.mg }) mg")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                        }
-                    }
-                }
-                .padding()
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(15)
-            } else {
-                Text("charts_require_ios16")
-                    .foregroundColor(.red)
-            }
+            chartView
+            
+            summaryView
             
             Spacer()
         }
@@ -154,6 +25,171 @@ struct StatsView: View {
         }
     }
     
+    // MARK: - Header View
+    private var headerView: some View {
+        HStack {
+            Button(action: {
+                dismiss()
+            }) {
+                Image(systemName: "chevron.left")
+                    .font(.title2)
+                    .foregroundColor(dataStore.settings.resolvedAccentColor)
+            }
+            
+            Spacer()
+            
+            Picker("period", selection: $selectedPeriod) {
+                ForEach(StatsPeriod.allCases) { period in
+                    Text(period.localizedName).tag(period)
+                }
+            }
+            .pickerStyle(.segmented)
+            
+            Spacer()
+            
+            Color.clear.frame(width: 30)
+        }
+        .padding(.horizontal)
+    }
+    
+    // MARK: - Chart View
+    private var chartView: some View {
+        Group {
+            if #available(iOS 16.0, *) {
+                let stats = dataStore.getStatsForPeriod(selectedPeriod)
+                
+                buildChart(stats: stats)
+            } else {
+                Text("charts_require_ios16")
+                    .foregroundColor(.red)
+            }
+        }
+    }
+    
+    @available(iOS 16.0, *)
+    private func buildChart(stats: [(date: Date, count: Int, mg: Int)]) -> some View {
+        Chart(stats, id: \.date) { point in
+            LineMark(
+                x: .value("date", point.date),
+                y: .value("count", max(0, point.count))
+            )
+            .interpolationMethod(.linear)
+            .foregroundStyle(
+                LinearGradient(
+                    colors: [dataStore.settings.resolvedAccentColor, dataStore.settings.resolvedAccentColor.opacity(0.5)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+            
+            AreaMark(
+                x: .value("date", point.date),
+                y: .value("count", max(0, point.count))
+            )
+            .interpolationMethod(.linear)
+            .foregroundStyle(dataStore.settings.resolvedAccentColor.opacity(0.2))
+        }
+        .chartXAxis {
+            AxisMarks(values: .stride(by: xAxisStride, count: 1)) { value in
+                if let date = value.as(Date.self) {
+                    AxisValueLabel(format: dateLabelFormat(for: date), centered: true)
+                }
+            }
+        }
+        .chartYAxis {
+            AxisMarks(position: .leading)
+        }
+        .chartYScale(domain: 0...(max(1, stats.map { $0.count }.max() ?? 1)))
+        .frame(height: 300)
+        .onTapGesture { location in
+            handleChartTap(location: location, stats: stats)
+        }
+        .overlay(chartOverlay(stats: stats))
+    }
+    
+    @available(iOS 16.0, *)
+    private func dateLabelFormat(for date: Date) -> DateFormatter.DateTimeComponentsFormat {
+        if selectedPeriod == .day24 {
+            return .dateTime.hour()
+        } else if selectedPeriod == .month6 || selectedPeriod == .year1 {
+            return .dateTime.month().day()
+        } else {
+            return .dateTime.day().month()
+        }
+    }
+    
+    @available(iOS 16.0, *)
+    private func handleChartTap(location: CGPoint, stats: [(date: Date, count: Int, mg: Int)]) {
+        let chartWidth = UIScreen.main.bounds.width - 40
+        let chartFrame = CGRect(x: 0, y: 0, width: chartWidth, height: 300)
+        
+        guard chartFrame.contains(location) else { return }
+        
+        let relativeX = (location.x - chartFrame.minX) / chartFrame.width
+        let index = Int(relativeX * Double(stats.count))
+        
+        if index >= 0 && index < stats.count {
+            selectedPoint = stats[index]
+        }
+    }
+    
+    @available(iOS 16.0, *)
+    private func chartOverlay(stats: [(date: Date, count: Int, mg: Int)]) -> some View {
+        Group {
+            if let point = selectedPoint {
+                VStack {
+                    Text(formatDateForTooltip(point.date))
+                        .font(.caption)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.black.opacity(0.8))
+                        .cornerRadius(4)
+                    
+                    Text("\(point.count) pouches\n\(point.mg) mg")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding(8)
+                        .background(dataStore.settings.resolvedAccentColor)
+                        .cornerRadius(8)
+                        .shadow(radius: 5)
+                    
+                    Spacer()
+                }
+                .padding()
+                .transition(.scale.combined(with: .opacity))
+            }
+        }
+    }
+    
+    // MARK: - Summary View
+    private var summaryView: some View {
+        let stats = dataStore.getStatsForPeriod(selectedPeriod)
+        
+        return VStack(spacing: 10) {
+            HStack(spacing: 20) {
+                VStack {
+                    Text("total_pouches")
+                        .foregroundColor(.secondary)
+                    Text("\(stats.reduce(0) { $0 + $1.count })")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                }
+                VStack {
+                    Text("total_mg_sum")
+                        .foregroundColor(.secondary)
+                    Text("\(stats.reduce(0) { $0 + $1.mg }) mg")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                }
+            }
+        }
+        .padding()
+        .background(Color.gray.opacity(0.1))
+        .cornerRadius(15)
+    }
+    
+    // MARK: - Helper Properties
     private var xAxisStride: Int {
         switch selectedPeriod {
         case .day24: return 4
@@ -165,11 +201,11 @@ struct StatsView: View {
         }
     }
     
-    private func formatDateForTooltip(_ date: Date, for period: StatsPeriod) -> String {
+    private func formatDateForTooltip(_ date: Date) -> String {
         let formatter = DateFormatter()
-        if period == .day24 {
+        if selectedPeriod == .day24 {
             formatter.dateFormat = "HH:mm"
-        } else if period == .month6 || period == .year1 {
+        } else if selectedPeriod == .month6 || selectedPeriod == .year1 {
             formatter.dateFormat = "MMM dd"
         } else {
             formatter.dateFormat = "dd MMM"
