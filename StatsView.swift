@@ -59,9 +59,8 @@ struct StatsView: View {
             // Agregacja dzienna dla dłuższych okresów
             var dailySums: [Date: Int] = [:]
             for entry in filteredData {
-                if let dayStart = calendar.startOfDay(for: entry.date) {
-                    dailySums[dayStart, default: 0] += entry.strength
-                }
+                let dayStart = calendar.startOfDay(for: entry.date)
+                dailySums[dayStart, default: 0] += entry.strength
             }
             
             // Wypełnianie luk zerami, aby wykres był ciągły
@@ -186,12 +185,12 @@ struct StatsView: View {
     
     func findClosestItem(to location: CGPoint, in proxy: ChartProxy, geometry: GeometryProxy) -> (date: Date, value: Int)? {
         guard let plotFrameRect = proxy.plotFrame else { return nil }
-        let plotFrame = CGRect(plotFrameRect)
+
         let relativeX = location.x - plotFrame.minX
         
         var closestItem: (date: Date, value: Int)?
         var minDistance: CGFloat = .infinity
-        
+        let relativeX = location.x - plotFrame.minX
         for item in chartData {
             if let xPos = proxy.position(forX: item.date) {
                 let distance = abs(xPos - location.x)
