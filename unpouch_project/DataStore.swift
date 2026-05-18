@@ -62,17 +62,10 @@ class DataStore: ObservableObject {
         var result: [(Date, Int, Int)] = []
         
         let startDate: Date
-        let components: DateComponents
         
         switch period {
         case .day24:
             startDate = calendar.date(byAdding: .hour, value: -24, to: now)!
-            // Group by hour for 24h? Or just show total? Let's group by hour for detail.
-            // Actually, request said: "week -> per day", "year -> per month".
-            // For 24h, let's show per hour.
-            // Simplified: just return one point for 24h if needed, but chart needs points.
-            // Let's stick to the rule: smallest unit based on range.
-            // 24h -> hours.
             for i in 0..<24 {
                 guard let bucketStart = calendar.date(byAdding: .hour, value: i, to: startDate) else { continue }
                 guard let bucketEnd = calendar.date(byAdding: .hour, value: 1, to: bucketStart) else { continue }
@@ -93,7 +86,7 @@ class DataStore: ObservableObject {
             
         case .month2:
             startDate = calendar.date(byAdding: .month, value: -2, to: now)!
-            for i in 0..<60 { // Approx days
+            for i in 0..<60 {
                 guard let bucketStart = calendar.date(byAdding: .day, value: i, to: startDate) else { continue }
                 guard let bucketEnd = calendar.date(byAdding: .day, value: 1, to: bucketStart) else { continue }
                 let bucketPouches = pouches.filter { $0.date >= bucketStart && $0.date < bucketEnd }
@@ -165,14 +158,14 @@ enum StatsPeriod: String, CaseIterable, Identifiable {
     
     var id: String { self.rawValue }
     
-    var localizableKey: String {
+    var displayName: String {
         switch self {
-        case .day24: return "stats_24h"
-        case .week: return "stats_1w"
-        case .month2: return "stats_2m"
-        case .month6: return "stats_6m"
-        case .year: return "stats_1y"
-        case .year2: return "stats_2y"
+        case .day24: return "24h_period"
+        case .week: return "week_period"
+        case .month2: return "2m_period"
+        case .month6: return "6m_period"
+        case .year: return "year_period"
+        case .year2: return "2y_period"
         }
     }
 }
