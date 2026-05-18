@@ -3,216 +3,218 @@ import Charts
 
 struct StatsView: View {
     @EnvironmentObject var dataStore: DataStore
-    @Environment(\.dismiss) var dismiss
+    @State private var selectedPeriod: TimePeriod = .day24
+    @State private var showingMainView = false
     
-    @State private var selectedPeriod: StatsPeriod = .day24
-    @State private var selectedPoint: (date: Date, count: Int, mg: Int)? = nil
-    
-    var body: some View {
-        VStack(spacing: 20) {
-            headerView
-            
-            chartView
-            
-            summaryView
-            
-            Spacer()
-        }
-        .navigationTitle("statistics")
-        .navigationBarTitleDisplayMode(.inline)
-        .onChange(of: selectedPeriod) { _ in
-            selectedPoint = nil
+    enum TimePeriod: String, CaseIterable, Identifiable {
+        case day24 = "24H"
+        case week1 = "1W"
+        case week2 = "2W"
+        case month1 = "1M"
+        case month2 = "2M"
+        case month6 = "6M"
+        case year1 = "1Y"
+        
+        var id: String { self.rawValue }
+        
+        var days: Int {
+            switch self {
+            case .day24: return 1
+            case .week1: return 7
+            case .week2: return 14
+            case .month1: return 30
+            case .month2: return 60
+            case .month6: return 180
+            case .year1: return 365
+            }
         }
     }
     
-    // MARK: - Header View
-    private var headerView: some View {
-        HStack {
-            Button(action: {
-                dismiss()
-            }) {
-                Image(systemName: "chevron.left")
-                    .font(.title2)
-                    .foregroundColor(dataStore.settings.resolvedAccentColor)
+    var filteredData: [PouchEntry] {
+        let calendar = Calendar.current
+        let now = Date()
+        guard let startDate = calendar.date(byAdding: .day, value: -selectedPeriod.days, to: now) else {
+            return []
+        }
+        
+        var entries = dataStore.entries.filter { $0.date >= startDate && $0.date <= now }
+        entries.sort { $0.date < $1.date }
+        return entries
+    }
+    
+    var chartData: [(date: Date, value: Int)] {
+        let calendar = Calendar.current
+        var result: [(Date, Int)] = []
+        
+        guard !filteredData.isEmpty else { return [] }
+        
+        if selectedPeriod == .day24 {
+            // Dla 24h pokazujemy każdą rejestrację z godziną
+            for entry in filteredData {
+                result.append((entry.date, entry.count))
             }
-            
-            Spacer()
-            
-            Picker("period", selection: $selectedPeriod) {
-                ForEach(StatsPeriod.allCases) { period in
-                    Text(period.localizedName).tag(period)
+        } else {
+            // Agregacja dzienna dla dłuższych okresów
+            var dailySums: [Date: Int] = [:]
+            for entry in filteredData {
+                if let dayStart = calendar.startOfDay(for: entry.date) {
+                    dailySums[dayStart, default: 0] += entry.count
                 }
             }
-            .pickerStyle(.segmented)
             
-            Spacer()
+            // Wypełnianie luk zerami, aby wykres był ciągły
+            let endDate = Date()
+            guard let startDate = calendar.date(byAdding: .day, value: -selectedPeriod.days, to: endDate) else {
+                return []
+            }
             
-            Color.clear.frame(width: 30)
-        }
-        .padding(.horizontal)
-    }
-    
-    // MARK: - Chart View
-    private var chartView: some View {
-        Group {
-            if #available(iOS 16.0, *) {
-                let stats = dataStore.getStatsForPeriod(selectedPeriod)
-                
-                buildChart(stats: stats)
-            } else {
-                Text("charts_require_ios16")
-                    .foregroundColor(.red)
+            var currentDate = startDate
+            while currentDate <= endDate {
+                let dayStart = calendar.startOfDay(for: currentDate)
+                let value = dailySums[dayStart] ?? 0
+                // Pomijamy dni z końcówki zakresu, które są w przyszłości lub mają 0 i są poza zakresem danych
+                if currentDate <= endDate {
+                     result.append((dayStart, value))
+                }
+                currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate) ?? endDate
             }
         }
+        return result
     }
     
-    @available(iOS 16.0, *)
-    private func buildChart(stats: [(date: Date, count: Int, mg: Int)]) -> some View {
-        Chart(stats, id: \.date) { point in
-            LineMark(
-                x: .value("date", point.date),
-                y: .value("count", max(0, point.count))
-            )
-            .interpolationMethod(.linear)
-            .foregroundStyle(
-                LinearGradient(
-                    colors: [dataStore.settings.resolvedAccentColor, dataStore.settings.resolvedAccentColor.opacity(0.5)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header z przyciskiem powrotu
+            HStack {
+                Button(action: {
+                    showingMainView = true
+                }) {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                }
+                Spacer()
+            }
+            .padding()
             
-            AreaMark(
-                x: .value("date", point.date),
-                y: .value("count", max(0, point.count))
+            // Picker okresu
+            Picker("Period", selection: $selectedPeriod) {
+                ForEach(TimePeriod.allCases) { period in
+                    Text(period.rawValue).tag(period)
+                }
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .padding(.horizontal)
+            .padding(.bottom)
+            
+            // Wykres
+            if chartData.isEmpty {
+                VStack {
+                    Spacer()
+                    Text("No data available for this period")
+                        .foregroundColor(.secondary)
+                    Spacer()
+                }
+            } else {
+                makeChart()
+                    .frame(height: 300)
+                    .padding()
+            }
+            
+            Spacer()
+        }
+        .navigationDestination(isPresented: $showingMainView) {
+            ContentView()
+                .environmentObject(dataStore)
+        }
+    }
+    
+    @ViewBuilder
+    func makeChart() -> some View {
+        Chart(chartData, id: \.date) { item in
+            LineMark(
+                x: .value("Date", item.date, unit: .hour),
+                y: .value("Count", item.value)
             )
-            .interpolationMethod(.linear)
-            .foregroundStyle(dataStore.settings.resolvedAccentColor.opacity(0.2))
+            .interpolationMethod(.linear) // Ostry wykres (liniowy)
+            .symbol(Circle().stroke(lineWidth: 2))
+            
+            PointMark(
+                x: .value("Date", item.date, unit: .hour),
+                y: .value("Count", item.value)
+            )
+            .annotation(position: .overlay) {
+                if selectedPeriod == .day24 {
+                    // Pokaż godzinę tylko dla 24h przy punktach, jeśli chcemy, ale dymek obsłuży to lepiej
+                }
+            }
         }
         .chartXAxis {
-            AxisMarks(values: .stride(by: xAxisStride, count: 1)) { value in
+            AxisMarks(values: .stride(by: xAxisStride())) { value in
                 if let date = value.as(Date.self) {
-                    AxisValueLabel(format: dateLabelFormat(for: date), centered: true)
+                    AxisValueLabel(format: xAxisFormat(date))
                 }
             }
         }
         .chartYAxis {
             AxisMarks(position: .leading)
         }
-        .chartYScale(domain: 0...(max(1, stats.map { $0.count }.max() ?? 1)))
-        .frame(height: 300)
-        .onTapGesture { location in
-            handleChartTap(location: location, stats: stats)
+        .chartOverlay { proxy in
+            GeometryReader { geometry in
+                Rectangle().fill(Color.clear).contentShape(Rectangle())
+                    .gesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { value in
+                                // Logika dymka jest obsługiwana natywnie przez Chart w nowszych iOS
+                                // lub można dodać custom overlay jeśli potrzebny jest specyficzny styl
+                            }
+                    )
+            }
         }
-        .overlay(chartOverlay(stats: stats))
-    }
-    
-    @available(iOS 16.0, *)
-    private func dateLabelFormat(for date: Date) -> String {
-        let formatter = DateFormatter()
-        if selectedPeriod == .day24 {
-            formatter.dateFormat = "HH:mm"
-        } else if selectedPeriod == .month6 || selectedPeriod == .year1 {
-            formatter.dateFormat = "MMM dd"
-        } else {
-            formatter.dateFormat = "dd MMM"
-        }
-        return formatter.string(from: date)
-    }
-    
-    @available(iOS 16.0, *)
-    private func handleChartTap(location: CGPoint, stats: [(date: Date, count: Int, mg: Int)]) {
-        let chartWidth = UIScreen.main.bounds.width - 40
-        let chartFrame = CGRect(x: 0, y: 0, width: chartWidth, height: 300)
-        
-        guard chartFrame.contains(location) else { return }
-        
-        let relativeX = (location.x - chartFrame.minX) / chartFrame.width
-        let index = Int(relativeX * Double(stats.count))
-        
-        if index >= 0 && index < stats.count {
-            selectedPoint = stats[index]
-        }
-    }
-    
-    @available(iOS 16.0, *)
-    private func chartOverlay(stats: [(date: Date, count: Int, mg: Int)]) -> some View {
-        Group {
-            if let point = selectedPoint {
-                VStack {
-                    Text(formatDateForTooltip(point.date))
+        .chartTooltip { proxy in
+            if let date = proxy.index(as: Date.self),
+               let item = chartData.first(where: { Calendar.current.isDate($0.date, inSameDayAs: date) && ($0.date.timeIntervalSince(date) > -3600 && $0.date.timeIntervalSince(date) < 3600) || abs($0.date.timeIntervalSince(date)) < 3600 }) {
+                
+                VStack(alignment: .center) {
+                    Text(item.date, style: .date)
                         .font(.caption)
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color.black.opacity(0.8))
-                        .cornerRadius(4)
-                    
-                    Text("\(point.count) pouches\n\(point.mg) mg")
+                    Text("\(item.value) pouches")
                         .font(.headline)
-                        .foregroundColor(.white)
-                        .padding(8)
-                        .background(dataStore.settings.resolvedAccentColor)
-                        .cornerRadius(8)
-                        .shadow(radius: 5)
-                    
-                    Spacer()
+                    if selectedPeriod == .day24 {
+                        Text(item.date, style: .time)
+                            .font(.caption2)
+                    }
                 }
-                .padding()
-                .transition(.scale.combined(with: .opacity))
+                .padding(8)
+                .background(Color.secondary.opacity(0.8))
+                .cornerRadius(8)
             }
         }
     }
     
-    // MARK: - Summary View
-    private var summaryView: some View {
-        let stats = dataStore.getStatsForPeriod(selectedPeriod)
-        
-        return VStack(spacing: 10) {
-            HStack(spacing: 20) {
-                VStack {
-                    Text("total_pouches")
-                        .foregroundColor(.secondary)
-                    Text("\(stats.reduce(0) { $0 + $1.count })")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                }
-                VStack {
-                    Text("total_mg_sum")
-                        .foregroundColor(.secondary)
-                    Text("\(stats.reduce(0) { $0 + $1.mg }) mg")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                }
-            }
-        }
-        .padding()
-        .background(Color.gray.opacity(0.1))
-        .cornerRadius(15)
-    }
-    
-    // MARK: - Helper Properties
-    private var xAxisStride: Int {
+    func xAxisStride() -> Calendar.Component {
         switch selectedPeriod {
-        case .day24: return 4
-        case .week1, .week2: return 1
-        case .month1: return 5
-        case .month2: return 7
-        case .month6: return 15
-        case .year1: return 30
+        case .day24: return .hour
+        case .week1, .week2: return .day
+        case .month1, .month2: return .day
+        case .month6, .year1: return .month
         }
     }
     
-    private func formatDateForTooltip(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        if selectedPeriod == .day24 {
-            formatter.dateFormat = "HH:mm"
-        } else if selectedPeriod == .month6 || selectedPeriod == .year1 {
-            formatter.dateFormat = "MMM dd"
-        } else {
-            formatter.dateFormat = "dd MMM"
+    func xAxisFormat(_ date: Date) -> Date.FormatStyle {
+        switch selectedPeriod {
+        case .day24:
+            return .dateTime.hour().minute()
+        case .week1, .week2:
+            return .dateTime.weekday(.abbreviated).day()
+        case .month1, .month2:
+            return .dateTime.day().month(.abbreviated)
+        case .month6, .year1:
+            return .dateTime.month(.abbreviated).year()
         }
-        return formatter.string(from: date)
     }
 }
 
