@@ -33,7 +33,7 @@ struct Settings: Codable {
         return Array(allStrengths).sorted()
     }
     
-    func usedStrengths(maxCount: Int = 10) -> [Int] {
+    func usedStrengths(from pouches: [Pouch], maxCount: Int = 10) -> [Int] {
         // Return most recently used strengths up to maxCount
         // Sort by usage frequency (most used first), then by value
         var strengthUsage: [Int: Int] = [:]
