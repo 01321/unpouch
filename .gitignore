@@ -20,6 +20,7 @@ target/
 .gradle/
 .mypy_cache/
 .pytest_cache/
+.julia/
 
 # Logs and temp files
 *.log
@@ -30,7 +31,7 @@ target/
 # Environment
 .env
 .env.local
-.env.*
+*.env.*
 
 # Editors
 .vscode/
@@ -38,7 +39,7 @@ target/
 *.swp
 *.swo
 
-# System files
+# System
 .DS_Store
 Thumbs.db
 
