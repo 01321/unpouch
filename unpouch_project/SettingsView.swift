@@ -49,7 +49,7 @@ struct SettingsView: View {
                         }
                     }
                     .confirmationDialog("select_reset_time", isPresented: $showResetPicker) {
-                        ForEach(0..<24, id: \\.self) { hour in
+                        ForEach(0..<24, id: \.self) { hour in
                             Button(String(format: "%02d:00", hour)) {
                                 resetHour = hour
                             }
@@ -59,7 +59,7 @@ struct SettingsView: View {
                 
                 Section(header: Text("language_header")) {
                     Picker("language", selection: $selectedLanguage) {
-                        ForEach(0..<languages.count, id: \\.self) { index in
+                        ForEach(0..<languages.count, id: \.self) { index in
                             Text(languageNames[index]).tag(languages[index])
                         }
                     }
@@ -71,7 +71,7 @@ struct SettingsView: View {
                 Section(header: Text("accent_color_header")) {
                     VStack(spacing: 12) {
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                            ForEach(colorOptions, id: \\.code) { colorOption in
+                            ForEach(colorOptions, id: \.code) { colorOption in
                                 Button(action: {
                                     dataStore.settings.accentColor = colorOption.code
                                     saveSettings()

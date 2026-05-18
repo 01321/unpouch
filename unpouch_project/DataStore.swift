@@ -168,4 +168,15 @@ enum StatsPeriod: String, CaseIterable, Identifiable {
         case .year2: return "2y_period"
         }
     }
+    
+    var localizedName: String {
+        switch self {
+        case .day24: return "24h"
+        case .week: return "week_stats"
+        case .month2: return "2_months"
+        case .month6: return "6_months"
+        case .year: return "year_stats"
+        case .year2: return "2_years"
+        }
+    }
 }

@@ -35,8 +35,28 @@ struct Settings: Codable {
     
     func usedStrengths(maxCount: Int = 10) -> [Int] {
         // Return most recently used strengths up to maxCount
-        // For simplicity, we'll just return the first maxCount from availableStrengths
-        // A more sophisticated implementation would track usage frequency
-        return Array(availableStrengths.prefix(maxCount))
+        // Sort by usage frequency (most used first), then by value
+        var strengthUsage: [Int: Int] = [:]
+        
+        // Count occurrences of each strength in pouches
+        for pouch in pouches {
+            strengthUsage[pouch.strength, default: 0] += 1
+        }
+        
+        // Get all available strengths
+        var allStrengths = availableStrengths
+        
+        // Sort by usage count (descending), then by strength value (ascending)
+        allStrengths.sort { a, b in
+            let countA = strengthUsage[a] ?? 0
+            let countB = strengthUsage[b] ?? 0
+            
+            if countA != countB {
+                return countA > countB // Most used first
+            }
+            return a < b // Then by value ascending
+        }
+        
+        return Array(allStrengths.prefix(maxCount))
     }
 }
