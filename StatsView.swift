@@ -149,10 +149,8 @@ struct StatsView: View {
         }
         .chartXAxis {
             AxisMarks(values: .stride(by: xAxisStride())) { value in
-                if let date = value.as(Date.self) {
-                    AxisValueLabel(format: xAxisFormat(date))
-                }
-            }
+                let date = value.as(Date.self)
+                AxisValueLabel(format: date.map { xAxisFormat($0) })            }
         }
         .chartYAxis {
             AxisMarks(position: .leading)
@@ -183,25 +181,6 @@ struct StatsView: View {
         }
     }
     
-    func findClosestItem(to location: CGPoint, in proxy: ChartProxy, geometry: GeometryProxy) -> (date: Date, value: Int)? {
-        guard let plotFrameRect = proxy.plotFrame else { return nil }
-
-        let relativeX = location.x - plotFrame.minX
-        
-        var closestItem: (date: Date, value: Int)?
-        var minDistance: CGFloat = .infinity
-        let relativeX = location.x - plotFrame.minX
-        for item in chartData {
-            if let xPos = proxy.position(forX: item.date) {
-                let distance = abs(xPos - location.x)
-                if distance < minDistance && distance < 20 { // Tolerance
-                    minDistance = distance
-                    closestItem = item
-                }
-            }
-        }
-        return closestItem
-    }
     
     func xAxisStride() -> Calendar.Component {
         switch selectedPeriod {
