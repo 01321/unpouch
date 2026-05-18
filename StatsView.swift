@@ -185,7 +185,8 @@ struct StatsView: View {
     }
     
     func findClosestItem(to location: CGPoint, in proxy: ChartProxy, geometry: GeometryProxy) -> (date: Date, value: Int)? {
-        guard let plotFrame = proxy.plotFrame else { return nil }
+        guard let plotFrameRect = proxy.plotFrame else { return nil }
+        let plotFrame = CGRect(plotFrameRect)
         let relativeX = location.x - plotFrame.minX
         
         var closestItem: (date: Date, value: Int)?
