@@ -4,7 +4,7 @@ import Charts
 struct StatsView: View {
     @EnvironmentObject var dataStore: DataStore
     
-    @State private var selectedPeriod: StatsPeriod = .week
+    @State private var selectedPeriod: StatsPeriod = .day24
     
     var body: some View {
         VStack(spacing: 20) {
