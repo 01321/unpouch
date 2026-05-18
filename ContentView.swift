@@ -7,13 +7,12 @@ struct ContentView: View {
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 30) {
+            VStack(spacing: 20) {
                 // Title at the top
                 Text("unpouch.")
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                    .padding(.top, 50)
-                    .padding(.leading, -180)
+                    .padding(.top, 40)
                 
                 // Top Stats Section
                 VStack(spacing: 10) {
@@ -42,8 +41,6 @@ struct ContentView: View {
                     // Limit Status
                     LimitStatusView(count: stats.count, limit: dataStore.settings.dailyLimit)
                 }
-                
-                Spacer()
                 
                 // Controls Section
                 VStack(spacing: 20) {
@@ -110,8 +107,6 @@ struct ContentView: View {
                     }
                 }
                 
-                Spacer()
-                
                 // Stats Entry Button
                 NavigationLink(destination: {
                     StatsView()
@@ -129,7 +124,7 @@ struct ContentView: View {
                     .cornerRadius(15)
                 }
                 .padding(.horizontal)
-                .padding(.bottom, 20)
+                .padding(.bottom, 30)
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
