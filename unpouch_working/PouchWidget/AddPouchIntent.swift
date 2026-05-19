@@ -1,31 +1,50 @@
 import WidgetKit
 import AppIntents
+import Foundation
 
-// Definicja intencji
+// Definicja intencji dodawania poucha
 struct AddPouchIntent: AppIntent {
-    static var title: LocalizedStringResource = "Dodaj Pouch"
-    static var description = IntentDescription("Dodaje jeden pouch do licznika.")
-    static var openAppWhenRun: Bool = true // Opcjonalnie otwiera aplikację po wykonaniu
-
+    static var title: LocalizedStringResource = "Add Pouch"
+    static var description = IntentDescription("Adds one pouch to the counter, just like the Add Pouch button in the main app.")
+    static var openAppWhenRun: Bool = false
+    
+    @Parameter(title: "Strength", default: 10)
+    var strength: Int
+    
     func perform() async throws -> some IntentResult {
-        // TUTAJ MUSISZ UMIEŚCIĆ LOGIKĘ DODAWANIA
-        // Ponieważ widget działa w innym procesie, musisz zapisać dane w miejscu wspólnym,
-        // np. UserDefaults z App Group lub bezpośrednio w modelu, jeśli jest to możliwe.
+        // Użyj App Group do współdzielenia danych między aplikacją a widgetem
+        guard let sharedDefaults = UserDefaults(suiteName: "group.unpouch.shared") else {
+            return .result()
+        }
         
-        // Przykład z UserDefaults (wymaga włączenia App Groups w Signing & Capabilities):
-        let sharedDefaults = UserDefaults(suiteName: "group.twoj.nazwa.aplikacji")
-        let currentCount = sharedDefaults?.integer(forKey: "pouchCount") ?? 0
-        sharedDefaults?.set(currentCount + 1, forKey: "pouchCount")
+        // Pobierz aktualne dane
+        let savedPouches = sharedDefaults.data(forKey: "saved_pouches")
+        var pouches: [Pouch] = []
         
-        // Jeśli używasz własnego modelu (np. StatsModel), musisz go załadować i zapisać tutaj.
-        // Przykład dla prostego modelu w pamięci (wymaga reloadowania w main app):
-        // StatsModel.shared.addPouch()
-
+        if let savedPouches = savedPouches,
+           let decodedPouches = try? JSONDecoder().decode([Pouch].self, from: savedPouches) {
+            pouches = decodedPouches
+        }
+        
+        // Dodaj nowego poucha
+        let newPouch = Pouch(date: Date(), strength: strength)
+        pouches.append(newPouch)
+        
+        // Zapisz z powrotem
+        if let encodedPouches = try? JSONEncoder().encode(pouches) {
+            sharedDefaults.set(encodedPouches, forKey: "saved_pouches")
+        }
+        
+        // Odśwież widget
+        WidgetCenter.shared.reloadTimelines(ofKind: "PouchWidget")
+        
         return .result()
     }
-    
-    // Statyczne podgląd dla widgeta (opcjonalne)
-    static var parameterSummary: some ParameterSummary {
-        Summary("Dodaj \(\.$pouchAmount) pouchy")
-    }
+}
+
+// Struktury muszą być dostępne w module widgetu - kopie z Models.swift
+struct Pouch: Codable, Identifiable {
+    let id = UUID()
+    let date: Date
+    let strength: Int
 }

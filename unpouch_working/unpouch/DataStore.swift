@@ -7,6 +7,7 @@ class DataStore: ObservableObject {
     
     private let pouchesKey = "saved_pouches"
     private let settingsKey = "saved_settings"
+    private let sharedDefaults = UserDefaults(suiteName: "group.unpouch.shared")
     
     init() {
         load()
@@ -143,22 +144,38 @@ class DataStore: ObservableObject {
     }
     
     func save() {
+        // Zapisz do lokalnych UserDefaults
         if let encodedPouches = try? JSONEncoder().encode(pouches) {
             UserDefaults.standard.set(encodedPouches, forKey: pouchesKey)
         }
         if let encodedSettings = try? JSONEncoder().encode(settings) {
             UserDefaults.standard.set(encodedSettings, forKey: settingsKey)
         }
+        
+        // Zapisz też do shared UserDefaults dla widgetu
+        if let encodedPouches = try? JSONEncoder().encode(pouches) {
+            sharedDefaults?.set(encodedPouches, forKey: pouchesKey)
+        }
+        if let encodedSettings = try? JSONEncoder().encode(settings) {
+            sharedDefaults?.set(encodedSettings, forKey: settingsKey)
+        }
     }
     
     func load() {
-        if let savedPouches = UserDefaults.standard.data(forKey: pouchesKey),
+        // Najpierw spróbuj załadować z shared UserDefaults (jeśli widget już coś zapisał)
+        if let savedPouches = sharedDefaults?.data(forKey: pouchesKey),
            let decodedPouches = try? JSONDecoder().decode([Pouch].self, from: savedPouches) {
+            pouches = decodedPouches
+        } else if let savedPouches = UserDefaults.standard.data(forKey: pouchesKey),
+                  let decodedPouches = try? JSONDecoder().decode([Pouch].self, from: savedPouches) {
             pouches = decodedPouches
         }
         
-        if let savedSettings = UserDefaults.standard.data(forKey: settingsKey),
+        if let savedSettings = sharedDefaults?.data(forKey: settingsKey),
            let decodedSettings = try? JSONDecoder().decode(Settings.self, from: savedSettings) {
+            settings = decodedSettings
+        } else if let savedSettings = UserDefaults.standard.data(forKey: settingsKey),
+                  let decodedSettings = try? JSONDecoder().decode(Settings.self, from: savedSettings) {
             settings = decodedSettings
         }
     }
