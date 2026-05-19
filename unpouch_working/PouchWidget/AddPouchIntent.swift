@@ -2,6 +2,13 @@ import WidgetKit
 import AppIntents
 import Foundation
 
+// Struktury muszą być dostępne w module widgetu - kopie z Models.swift
+struct Pouch: Codable, Identifiable {
+    let id = UUID()
+    let date: Date
+    let strength: Int
+}
+
 // Definicja intencji dodawania poucha
 struct AddPouchIntent: AppIntent {
     static var title: LocalizedStringResource = "Add Pouch"
@@ -40,11 +47,4 @@ struct AddPouchIntent: AppIntent {
         
         return .result()
     }
-}
-
-// Struktury muszą być dostępne w module widgetu - kopie z Models.swift
-struct Pouch: Codable, Identifiable {
-    let id = UUID()
-    let date: Date
-    let strength: Int
 }
