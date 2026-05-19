@@ -67,6 +67,7 @@ struct SimplePouchProvider: AppIntentTimelineProvider {
 
 struct PouchWidgetEntryView: View {
     var entry: PouchEntry
+    var family: WidgetFamily
     
     var body: some View {
         Button(action: {
@@ -78,19 +79,27 @@ struct PouchWidgetEntryView: View {
                 }
             }
         }) {
-            VStack(spacing: 8) {
-                Image(systemName: "bag.fill")
-                    .font(.system(size: 30))
-                    .foregroundColor(.accentColor)
-                
+            if family == .accessoryCircular {
+                // Mały okrągły widget na ekranie blokady
                 Text("\(entry.count)")
-                    .font(.system(size: 40, weight: .bold))
-                
-                Text("\(entry.totalMg) mg")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(.primary)
+            } else {
+                // Standardowy widget na pulpicie
+                VStack(spacing: 8) {
+                    Image(systemName: "bag.fill")
+                        .font(.system(size: 30))
+                        .foregroundColor(.accentColor)
+                    
+                    Text("\(entry.count)")
+                        .font(.system(size: 40, weight: .bold))
+                    
+                    Text("\(entry.totalMg) mg")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .containerBackground(.fill.tertiary, for: .widget)
             }
-            .containerBackground(.fill.tertiary, for: .widget)
         }
     }
 }
@@ -110,10 +119,24 @@ struct PouchWidget: Widget {
 
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: SimplePouchProvider()) { entry in
-            PouchWidgetEntryView(entry: entry)
+            PouchWidgetEntryView(entry: entry, family: .accessoryCircular)
         }
         .configurationDisplayName("Pouch Counter")
         .description("Widget that shows your daily pouch count and allows adding a pouch with one tap.")
+        .supportedFamilies([.accessoryCircular])
+    }
+}
+
+// Drugi widget na pulpit (jeśli potrzebny)
+struct PouchWidgetHome: Widget {
+    let kind: String = "PouchWidgetHome"
+
+    var body: some WidgetConfiguration {
+        AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: SimplePouchProvider()) { entry in
+            PouchWidgetEntryView(entry: entry, family: .systemSmall)
+        }
+        .configurationDisplayName("Pouch Counter (Home)")
+        .description("Widget that shows your daily pouch count on the home screen.")
         .supportedFamilies([.systemSmall])
     }
 }

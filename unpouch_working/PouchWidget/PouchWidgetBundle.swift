@@ -12,6 +12,7 @@ import SwiftUI
 struct PouchWidgetBundle: WidgetBundle {
     var body: some Widget {
         PouchWidget()
+        PouchWidgetHome()
         PouchWidgetLiveActivity()
     }
 }
