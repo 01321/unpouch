@@ -12,7 +12,7 @@ struct ContentView: View {
                 Text("unpouch.")
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                    .padding(.top, 40)
+                    .padding(.top)
                 
                 // Top Stats Section
                 VStack(spacing: 10) {

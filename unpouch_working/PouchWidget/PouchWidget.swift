@@ -125,6 +125,8 @@ struct PouchWidgetEntryView: View {
                     Text("pouches")
                         .font(.system(size: 9, weight: .medium))
                         .foregroundColor(.secondary)
+                        .containerBackground(.fill, for: .widget) // <-- To trzeba dodać
+                        .widgetURL(URL(string: "add-pouch")) // Jeśli chcesz obsługiwać kliknięcie
                 }
             } else {
                 // Standardowy widget na pulpicie
