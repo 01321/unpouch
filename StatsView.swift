@@ -310,7 +310,7 @@ struct StatsView: View {
                 AxisTick()
             }
         }
-        .chartYScale(domain: 0..<max(1, chartData.map { $0.value }.max() ?? 0))
+        .chartYScale(domain: 0...max(1, chartData.map { $0.value }.max() ?? 0))
     }
     
     
