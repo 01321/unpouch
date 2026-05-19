@@ -56,3 +56,5 @@
 "2M" = "2M";
 "6M" = "6M";
 "1Y" = "1R";
+"danger_zone_header" = "Strefa Niebezpieczna";
+"clear_all_data" = "Wyczyść Wszystkie Dane";

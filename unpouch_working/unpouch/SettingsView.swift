@@ -97,6 +97,19 @@ struct SettingsView: View {
                     }
                     .padding(.vertical, 8)
                 }
+                
+                Section(header: Text("danger_zone_header")) {
+                    Button(action: {
+                        dataStore.clearAllData()
+                    }) {
+                        HStack {
+                            Image(systemName: "trash.fill")
+                                .foregroundColor(.red)
+                            Text("clear_all_data")
+                                .foregroundColor(.red)
+                        }
+                    }
+                }
             }
             .navigationTitle("settings")
             .toolbar {
