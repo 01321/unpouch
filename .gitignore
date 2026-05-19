@@ -1,56 +1,74 @@
-# Compiled and build artifacts
-*.pyc
-__pycache__/
+```
+# Build artifacts
 *.o
 *.obj
-*.class
-*.exe
-*.dll
-*.so
 *.a
+*.lib
+*.dylib
+*.so
+*.dll
+*.exe
 *.out
 
 # Dependencies
 node_modules/
 venv/
 .venv/
-.env
-.env.local
-.env.*
+__pycache__/
+*.egg-info/
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
 
 # Logs and temp files
 *.log
 *.tmp
+*.temp
 *.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+.env.*
+
+# Coverage reports
+.coverage
+coverage/
+htmlcov/
 
 # Editors
 .vscode/
 .idea/
+*.sublime-project
+*.sublime-workspace
+nbproject/
 
-# Build directories
-dist/
-build/
-target/
-.gradle/
-.mypy_cache/
-.pytest_cache/
-coverage/
-htmlcov/
-.Coverage
-
-# System files
+# OS generated files
 .DS_Store
-Thumbs.db
-
-# Compressed files
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Icon?
+iTunes_Control/
+*.nfs
+*~.nib
+local.properties
+*.swf
 *.zip
-*.gz
-*.tar
-*.tgz
-*.bz2
-*.xz
+*.tar.gz
+*.tar.bz2
+*.tar.xz
 *.7z
 *.rar
+*.gz
+*.bz2
+*.xz
 *.zst
 *.lz4
 *.lzh
@@ -61,7 +79,63 @@ Thumbs.db
 *.Z
 *.lz
 *.lzo
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.tar.zst
+
+# Swift/Xcode specific
+*.xcodeproj/
+*.xcworkspace/
+DerivedData/
+*.swiftmodule/
+*.swiftdoc
+*.swiftsourceinfo
+*.build/
+build/
+Products/
+*.app
+*.ipa
+*.dSYM.zip
+*.dSYM/
+*.lproj/
+Base.lproj/
+*.storyboardc/
+
+# iOS/Apple specific
+*.mobileprovision
+*.entitlements
+*.xcconfig
+*.xctest
+*.bundle
+*.framework
+*.appex
+*.pkg
+*.mpkg
+*.pkg.tar.*
+*.mpkg.tar.*
+
+# Testing
+*.gcda
+*.gcno
+*.gcov
+coverage.xml
+lcov.info
+
+# Distribution / packaging
+*.tar
+*.zip
+*.rar
+*.gz
+*.bz2
+*.7z
+*.dmg
+*.iso
+
+# System files
+.LSOverride
+.DocumentRevisions-V100
+.fseventsd
+.SnapshotBackup
+.TemporaryItems
+.Trash-*
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.com.apple.timemachine.supported
+```
