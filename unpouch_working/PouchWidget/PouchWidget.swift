@@ -81,9 +81,14 @@ struct PouchWidgetEntryView: View {
         }) {
             if family == .accessoryCircular {
                 // Mały okrągły widget na ekranie blokady
-                Text("\(entry.count)")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundColor(.primary)
+                VStack(spacing: 0) {
+                    Text("\(entry.count)")
+                        .font(.system(size: 28, weight: .bold))
+                        .foregroundColor(.primary)
+                    Text("pouches")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundColor(.secondary)
+                }
             } else {
                 // Standardowy widget na pulpicie
                 VStack(spacing: 8) {
