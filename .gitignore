@@ -3,77 +3,43 @@
 *.o
 *.obj
 *.a
-*.so
 *.dylib
+*.so
 *.dll
 *.exe
 *.out
 
-# Dependencies
-node_modules/
-venv/
-.venv/
-__pycache__/
-*.egg-info/
-dist/
+# Xcode
+*.xcodeproj/
+*.xcworkspace/
+*.xib
+*.storyboard
+*.xcassets/
+DerivedData/
 build/
-target/
-.gradle/
+*.app
+*.ipa
+*.dSYM/
 
-# Logs and temp files
-*.log
-*.tmp
-*.swp
-*.swo
+# Swift
+.swiftpm/
+Packages/
+Package.resolved
 
-# Environment variables
+# Dependencies
+Pods/
+Carthage/
+vendor/
+
+# Environment
 .env
 .env.local
-*.env.*
+.env.*
 
-# Editors
-.vscode/
-.idea/
-*.swp
-*.swo
+# Logs
+*.log
 
 # OS generated files
 .DS_Store
 Thumbs.db
-
-# Coverage reports
-coverage/
-htmlcov/
-.coverage
-
-# Python specific
-*.pyc
-*.pyo
-*.pyd
-.Python
-*.so
-
-# Compressed files
-*.zip
-*.gz
-*.tar
-*.tgz
-*.bz2
-*.xz
-*.7z
-*.rar
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.tar.zst
 ```
