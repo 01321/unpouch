@@ -1,141 +1,64 @@
 ```
-# Build artifacts
+# Xcode/Swift build artifacts
+*.swiftmodule/
+*.swiftdoc
+*.dSYM/
+build/
+DerivedData/
+
+# iOS/Mac development
+*.ipa
+*.app/
+*.framework/
+*.xcworkspace/
+xcuserdata/
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
+
+# Swift Package Manager
+.swiftpm/
+Package.resolved
+
+# General build artifacts
 *.o
 *.obj
 *.a
-*.lib
-*.dylib
 *.so
+*.dylib
 *.dll
 *.exe
 *.out
 
 # Dependencies
 node_modules/
-venv/
-.venv/
-__pycache__/
-*.egg-info/
-.Python
-pip-log.txt
-pip-delete-this-directory.txt
+vendor/
+Pods/
+Carthage/
+CocoaPods/
 
 # Logs and temp files
 *.log
 *.tmp
-*.temp
 *.swp
 *.swo
-*~
-.DS_Store
-Thumbs.db
 
-# Environment variables
+# Environment
 .env
 .env.local
-.env.*
-
-# Coverage reports
-.coverage
-coverage/
-htmlcov/
+*.env.*
 
 # Editors
 .vscode/
 .idea/
-*.sublime-project
-*.sublime-workspace
-nbproject/
+*.swp
+*~
 
-# OS generated files
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# OS specific
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Icon?
-iTunes_Control/
-*.nfs
-*~.nib
-local.properties
-*.swf
-*.zip
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.7z
-*.rar
-*.gz
-*.bz2
-*.xz
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
-
-# Swift/Xcode specific
-*.xcodeproj/
-*.xcworkspace/
-DerivedData/
-*.swiftmodule/
-*.swiftdoc
-*.swiftsourceinfo
-*.build/
-build/
-Products/
-*.app
-*.ipa
-*.dSYM.zip
-*.dSYM/
-*.lproj/
-Base.lproj/
-*.storyboardc/
-
-# iOS/Apple specific
-*.mobileprovision
-*.entitlements
-*.xcconfig
-*.xctest
-*.bundle
-*.framework
-*.appex
-*.pkg
-*.mpkg
-*.pkg.tar.*
-*.mpkg.tar.*
-
-# Testing
-*.gcda
-*.gcno
-*.gcov
-coverage.xml
-lcov.info
-
-# Distribution / packaging
-*.tar
-*.zip
-*.rar
-*.gz
-*.bz2
-*.7z
-*.dmg
-*.iso
-
-# System files
-.LSOverride
-.DocumentRevisions-V100
-.fseventsd
-.SnapshotBackup
-.TemporaryItems
-.Trash-*
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
-.com.apple.timemachine.supported
+Thumbs.db
 ```

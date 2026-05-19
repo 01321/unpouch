@@ -69,7 +69,15 @@ struct PouchWidgetEntryView: View {
     var entry: PouchEntry
     
     var body: some View {
-        Link(destination: AddPouchIntent()) {
+        Button(action: {
+            Task {
+                do {
+                    try await AddPouchIntent().perform()
+                } catch {
+                    print("Failed to add pouch: \(error)")
+                }
+            }
+        }) {
             VStack(spacing: 8) {
                 Image(systemName: "bag.fill")
                     .font(.system(size: 30))
@@ -88,12 +96,6 @@ struct PouchWidgetEntryView: View {
 }
 
 // Struktury muszą być dostępne w module widgetu
-struct Pouch: Codable, Identifiable {
-    let id = UUID()
-    let date: Date
-    let strength: Int
-}
-
 struct Settings: Codable {
     var dailyLimit: Int = 10
     var resetHour: Int = 1
