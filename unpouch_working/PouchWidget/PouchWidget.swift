@@ -13,7 +13,44 @@ struct SimplePouchProvider: AppIntentTimelineProvider {
     }
 
     func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> PouchEntry {
-        PouchEntry(date: Date(), count: 5, totalMg: 100)
+        // Zakomentowano testowe dane - użyj rzeczywistych danych z timeline
+        // PouchEntry(date: Date(), count: 5, totalMg: 100)
+        
+        // Pobierz rzeczywiste dane z UserDefaults
+        guard let sharedDefaults = UserDefaults(suiteName: "group.unpouch.shared"),
+              let savedPouches = sharedDefaults.data(forKey: "saved_pouches"),
+              let pouches = try? JSONDecoder().decode([Pouch].self, from: savedPouches) else {
+            return PouchEntry(date: Date(), count: 0, totalMg: 0)
+        }
+        
+        let now = Date()
+        let calendar = Calendar.current
+        
+        let savedSettings = sharedDefaults.data(forKey: "saved_settings")
+        var resetHour = 1
+        if let savedSettings = savedSettings,
+           let decodedSettings = try? JSONDecoder().decode(Settings.self, from: savedSettings) {
+            resetHour = decodedSettings.resetHour
+        }
+        
+        var lastResetComponents = calendar.dateComponents([.year, .month, .day], from: now)
+        lastResetComponents.hour = resetHour
+        lastResetComponents.minute = 0
+        lastResetComponents.second = 0
+        
+        guard var lastResetDate = calendar.date(from: lastResetComponents) else {
+            return PouchEntry(date: Date(), count: 0, totalMg: 0)
+        }
+        
+        if now < lastResetDate {
+            lastResetDate = calendar.date(byAdding: .day, value: -1, to: lastResetDate)!
+        }
+        
+        let todaysPouches = pouches.filter { $0.date >= lastResetDate }
+        let count = todaysPouches.count
+        let totalMg = todaysPouches.reduce(0) { $0 + $1.strength }
+        
+        return PouchEntry(date: Date(), count: count, totalMg: totalMg)
     }
     
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<PouchEntry> {

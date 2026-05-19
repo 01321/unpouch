@@ -56,3 +56,5 @@
 "2M" = "2M";
 "6M" = "6M";
 "1Y" = "1Y";
+"danger_zone_header" = "Danger Zone";
+"clear_all_data" = "Clear All Data";

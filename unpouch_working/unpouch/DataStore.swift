@@ -217,6 +217,15 @@ class DataStore: ObservableObject {
         pouches = testPouches
         save()
     }
+    
+    func clearAllData() {
+        pouches = []
+        UserDefaults.standard.removeObject(forKey: pouchesKey)
+        UserDefaults.standard.removeObject(forKey: settingsKey)
+        sharedDefaults?.removeObject(forKey: pouchesKey)
+        sharedDefaults?.removeObject(forKey: settingsKey)
+        save()
+    }
 }
 
 enum StatsPeriod: String, CaseIterable, Identifiable {
