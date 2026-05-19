@@ -1,25 +1,5 @@
 ```
-# Xcode/Swift build artifacts
-*.swiftmodule/
-*.swiftdoc
-*.dSYM/
-build/
-DerivedData/
-
-# iOS/Mac development
-*.ipa
-*.app/
-*.framework/
-*.xcworkspace/
-xcuserdata/
-*.xcodeproj/project.xcworkspace/
-*.xcodeproj/xcuserdata/
-
-# Swift Package Manager
-.swiftpm/
-Package.resolved
-
-# General build artifacts
+# Build artifacts
 *.o
 *.obj
 *.a
@@ -31,10 +11,14 @@ Package.resolved
 
 # Dependencies
 node_modules/
-vendor/
-Pods/
-Carthage/
-CocoaPods/
+venv/
+.venv/
+__pycache__/
+*.egg-info/
+dist/
+build/
+target/
+.gradle/
 
 # Logs and temp files
 *.log
@@ -42,7 +26,7 @@ CocoaPods/
 *.swp
 *.swo
 
-# Environment
+# Environment variables
 .env
 .env.local
 *.env.*
@@ -51,14 +35,45 @@ CocoaPods/
 .vscode/
 .idea/
 *.swp
-*~
+*.swo
 
-# Coverage
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Coverage reports
 coverage/
 htmlcov/
 .coverage
 
-# OS specific
-.DS_Store
-Thumbs.db
+# Python specific
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
 ```

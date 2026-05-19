@@ -105,7 +105,6 @@ struct Settings: Codable {
     var accentColor: String = "blue"
 }
 
-@main
 struct PouchWidget: Widget {
     let kind: String = "PouchWidget"
 
