@@ -305,15 +305,12 @@ struct StatsView: View {
         }
         .chartYAxis {
             AxisMarks(position: .leading) { value in
-                if let intValue = value.as(Int.self) {
-                    AxisValueLabel("\(intValue)")
-                } else {
-                    AxisGridLine()
-                    AxisTick()
-                }
+                AxisValueLabel()
+                AxisGridLine()
+                AxisTick()
             }
         }
-        .chartYScale(domain: 0...) // Zawsze zaczynaj od 0, żeby wykres nie "malal"
+        .chartYScale(domain: 0..<max(1, chartData.map { $0.value }.max() ?? 0))
     }
     
     
@@ -339,7 +336,7 @@ struct StatsView: View {
                     }
                 }
             }
-            return .custom(datesWithChanges)
+            return .automatic
         case .week1:
             // Pokaż co 3 dni dla 7 dni
             return .stride(by: Calendar.Component.day, count: 3)
