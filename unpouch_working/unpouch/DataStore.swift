@@ -63,6 +63,26 @@ class DataStore: ObservableObject {
         return (count, totalMg)
     }
     
+    func getTimeSinceLastPouch() -> String? {
+        guard let lastPouch = pouches.max(by: { $0.date < $1.date }) else {
+            return nil
+        }
+        
+        let now = Date()
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.hour, .minute], from: lastPouch.date, to: now)
+        
+        if let hours = components.hour, let minutes = components.minute {
+            if hours > 0 {
+                return String(format: "%dh %dm", hours, minutes)
+            } else {
+                return String(format: "%dm", minutes)
+            }
+        }
+        
+        return nil
+    }
+    
     func getStatsForPeriod(_ period: StatsPeriod) -> [(date: Date, count: Int, mg: Int)] {
         let now = Date()
         let calendar = Calendar.current

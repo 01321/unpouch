@@ -38,6 +38,14 @@ struct ContentView: View {
                         .fontWeight(.medium)
                         .foregroundColor(.gray)
                     
+                    // Time since last pouch
+                    if let timeSince = dataStore.getTimeSinceLastPouch() {
+                        Text(timeSince)
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                            .padding(.top, 4)
+                    }
+                    
                     // Limit Status
                     LimitStatusView(count: stats.count, limit: dataStore.settings.dailyLimit)
                 }
