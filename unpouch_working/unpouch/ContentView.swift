@@ -30,7 +30,7 @@ struct ContentView: View {
                 Text("unpouch.")
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                    .padding(.top)
+                    .padding(.top, -20)
                 
                 // Top Stats Section - HStack z czasem po lewej i liczbą po prawej
                 HStack(alignment: .center, spacing: 20) {
@@ -38,15 +38,12 @@ struct ContentView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         if !dataStore.pouches.isEmpty {
                             // Większy napis "X temu"
+                            Text("Last Pouch:")
                             Text(timeAgoString)
                                 .font(.title2)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.primary)
-                            
-                            // Mniejszy, szary napis z dokładnym czasem
-                            Text(detailedTimeString)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+           
                         } else {
                             Text(NSLocalizedString("no_pouches_yet", comment: ""))
                                 .font(.title3)
@@ -58,6 +55,7 @@ struct ContentView: View {
                     // Prawa strona: Duża liczba pouchy dziś
                     VStack(spacing: 8) {
                         Text("\(stats.count)")
+                            .frame(maxWidth: .infinity, alignment: .center)
                             .font(.system(size: 60, weight: .bold, design: .rounded))
                             .foregroundStyle(
                                 LinearGradient(
