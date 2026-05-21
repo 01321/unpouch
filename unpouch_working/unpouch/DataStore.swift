@@ -4,19 +4,68 @@ import Combine
 class DataStore: ObservableObject {
     @Published var pouches: [Pouch] = []
     @Published var settings: Settings = Settings()
+    @Published var nextPouchReadyTime: Date? = nil
     
     private let pouchesKey = "saved_pouches"
     private let settingsKey = "saved_settings"
+    private let nextPouchKey = "next_pouch_ready_time"
     private let sharedDefaults = UserDefaults(suiteName: "group.unpouch.shared")
     
     init() {
         load()
+        startNextPouchTimer()
     }
     
     func addPouch(strength: Int) {
         let newPouch = Pouch(date: Date(), strength: strength)
         pouches.append(newPouch)
+        resetNextPouchTimer()
         save()
+    }
+    
+    func resetNextPouchTimer() {
+        let activeHours = calculateActiveHours()
+        if activeHours <= 0 { return }
+        
+        let intervalPerPouch = activeHours / Double(max(settings.plannerDailyLimit, 1))
+        let secondsUntilNext = intervalPerPouch * 3600 // Convert hours to seconds
+        nextPouchReadyTime = Date().addingTimeInterval(secondsUntilNext)
+        saveNextPouchReadyTime()
+    }
+    
+    func startNextPouchTimer() {
+        loadNextPouchReadyTime()
+    }
+    
+    func calculateActiveHours() -> Double {
+        var start = settings.sleepEndHour
+        var end = settings.sleepStartHour
+        
+        // Handle case where sleep spans midnight
+        if end < start {
+            end += 24
+        }
+        
+        let activeHours = end - start
+        return max(0, activeHours)
+    }
+    
+    func getTimeUntilNextPouch() -> (hours: Int, minutes: Int, isReady: Bool) {
+        guard let readyTime = nextPouchReadyTime else {
+            return (0, 0, true) // No timer set, ready immediately
+        }
+        
+        let now = Date()
+        if now >= readyTime {
+            return (0, 0, true) // Ready
+        }
+        
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.hour, .minute], from: now, to: readyTime)
+        
+        let hours = components.hour ?? 0
+        let minutes = components.minute ?? 0
+        return (hours, minutes, false)
     }
     
     func removeLastPouch() {
@@ -197,6 +246,23 @@ class DataStore: ObservableObject {
         } else if let savedSettings = UserDefaults.standard.data(forKey: settingsKey),
                   let decodedSettings = try? JSONDecoder().decode(Settings.self, from: savedSettings) {
             settings = decodedSettings
+        }
+        
+        loadNextPouchReadyTime()
+    }
+    
+    func saveNextPouchReadyTime() {
+        if let readyTime = nextPouchReadyTime {
+            UserDefaults.standard.set(readyTime, forKey: nextPouchKey)
+            sharedDefaults?.set(readyTime, forKey: nextPouchKey)
+        }
+    }
+    
+    func loadNextPouchReadyTime() {
+        if let savedTime = sharedDefaults?.object(forKey: nextPouchKey) as? Date {
+            nextPouchReadyTime = savedTime
+        } else if let savedTime = UserDefaults.standard.object(forKey: nextPouchKey) as? Date {
+            nextPouchReadyTime = savedTime
         }
     }
     

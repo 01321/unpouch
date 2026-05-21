@@ -72,3 +72,15 @@
 "time_detailed_m" = "%dMin";
 "planner" = "Planer";
 "quit_helper" = "Aufhörhilfe";
+"next_pouch_ready" = "Bereit ✓";
+"planner_daily_limit_header" = "Tägliches Pouch Limit";
+"planner_pouches_per_day" = "Pouches pro Tag";
+"planner_interval_preview" = "Ungefähres Intervall:";
+"planner_active_hours_info" = "Berechnet basierend auf Ihren aktiven Stunden (ohne Schlaf)";
+"planner_active_hours" = "Aktive Stunden:";
+"planner_sleep_schedule" = "Schlafplan";
+"planner_sleep_start" = "Schlafenszeit";
+"planner_sleep_end" = "Aufwachzeit";
+"planner_sleep_info" = "Die App berechnet Intervalle nur während Ihrer aktiven Stunden";
+"planner_summary" = "Zusammenfassung";
+"planner_time_between_pouches" = "Zeit zwischen Pouches:";

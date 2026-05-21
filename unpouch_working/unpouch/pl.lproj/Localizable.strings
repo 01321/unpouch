@@ -72,3 +72,15 @@
 "time_detailed_m" = "%dmin";
 "planner" = "Planer";
 "quit_helper" = "Pomoc w Rzucaniu";
+"next_pouch_ready" = "Gotowy ✓";
+"planner_daily_limit_header" = "Dzienny Limit Pouchy";
+"planner_pouches_per_day" = "Pouchy dziennie";
+"planner_interval_preview" = "Przybliżony odstęp:";
+"planner_active_hours_info" = "Obliczane na podstawie Twoich aktywnych godzin (bez snu)";
+"planner_active_hours" = "Aktywne godziny:";
+"planner_sleep_schedule" = "Harmonogram Snu";
+"planner_sleep_start" = "Godzina snu";
+"planner_sleep_end" = "Godzina pobudki";
+"planner_sleep_info" = "Aplikacja oblicza odstępy tylko w czasie Twojej aktywności";
+"planner_summary" = "Podsumowanie";
+"planner_time_between_pouches" = "Czas między pouchami:";
