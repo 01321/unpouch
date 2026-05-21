@@ -2,6 +2,8 @@ import SwiftUI
 
 struct PlannerView: View {
     @EnvironmentObject var dataStore: DataStore
+    @Environment(\.dismiss) var dismiss
+    
     @State private var dailyPouches: String = ""
     @State private var sleepHours: String = ""
     @State private var packPrice: String = ""
@@ -39,7 +41,7 @@ struct PlannerView: View {
                             .multilineTextAlignment(.trailing)
                     }
                     
-                    // Interval displayed below container in smaller font
+                    // Interval displayed below in smaller font
                     if let pouches = Int(dailyPouches), pouches > 0 {
                         Text(String(format: NSLocalizedString("planner_approx_interval", comment: ""), formatTime(intervalPerPouch)))
                             .font(.caption)
@@ -92,7 +94,7 @@ struct PlannerView: View {
                     }
                 }
                 
-                // Cost per pouch displayed at the very bottom, outside main containers
+                // Cost per pouch displayed at the bottom
                 Section {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("planner_cost_per_pouch")
@@ -106,6 +108,15 @@ struct PlannerView: View {
                 }
             }
             .navigationTitle("planner")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("done") {
+                        saveSettings()
+                        dismiss()
+                    }
+                    .fontWeight(.bold)
+                }
+            }
             .onAppear {
                 dailyPouches = String(dataStore.settings.plannerDailyLimit)
                 sleepHours = String(dataStore.settings.sleepHours)
@@ -158,6 +169,10 @@ struct PlannerView: View {
         } else {
             return String(format: "%dm", m)
         }
+    }
+    
+    private func saveSettings() {
+        dataStore.save()
     }
 }
 
