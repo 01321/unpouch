@@ -41,7 +41,7 @@ struct PlannerView: View {
                     
                     // Interval displayed below container in smaller font
                     if let pouches = Int(dailyPouches), pouches > 0 {
-                        Text(String(format: "planner_approx_interval".localized, formatTime(intervalPerPouch)))
+                        Text(String(format: NSLocalizedString("planner_approx_interval", comment: ""), formatTime(intervalPerPouch)))
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .padding(.top, 4)
@@ -59,7 +59,7 @@ struct PlannerView: View {
                     }
                     
                     // Active time displayed below in smaller font
-                    Text(String(format: "planner_active_time_display".localized, String(format: "%.1f", activeHours)))
+                    Text(String(format: NSLocalizedString("planner_active_time_display", comment: ""), String(format: "%.1f", activeHours)))
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .padding(.top, 4)
@@ -98,7 +98,7 @@ struct PlannerView: View {
                         Text("planner_cost_per_pouch")
                             .font(.caption)
                             .foregroundColor(.secondary)
-                        Text(String(format: "estimated_cost_format".localized, calculatedCostPerPouch, currency.isEmpty ? dataStore.settings.currency : currency))
+                        Text(String(format: NSLocalizedString("estimated_cost_format", comment: ""), calculatedCostPerPouch, currency.isEmpty ? dataStore.settings.currency : currency))
                             .font(.headline)
                             .foregroundColor(.primary)
                     }
