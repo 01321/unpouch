@@ -1,28 +1,65 @@
-```
-# Xcode
-*.xcodeproj/
-*.xcworkspace/
-*.xcuserstate
-*.swp
-*.swo
-*.tmp
-
-# Build
+# Xcode/Swift build artifacts
+*.swiftmodule/
+*.swiftdoc
+*.dSYM/
 build/
 DerivedData/
 
-# Environment
+# Xcode project files
+*.xcodeproj/
+*.xcworkspace/
+*.xcuserdatad/
+
+# Localized string cache
+*.strings~
+
+# iOS/Mac app bundles
+*.app/
+*.ipa/
+*.dmg/
+
+# Simulator files
+*.simspecification/
+
+# Provisioning profiles
+*.mobileprovision/
+
+# Core Data
+*.momd/
+*.xcdatamodeld/
+
+# Swift Package Manager
+.swiftpm/
+Package.resolved
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Environment variables
 .env
 .env.local
 *.env.*
 
-# Logs
-*.log
+# IDE specific
+.vscode/
+.idea/
 
-# Swift
-*.swiftmodule
-*.swiftdoc
-
-# macOS
+# OS specific
 .DS_Store
-```
+Thumbs.db
+
+# Build systems
+xcuserdata/
+*.mode1v3
+*.pbxuser
+*.perspectivev3
+*.mode2v3
+*.xcuserstate
+
+# Testing
+*.nib
+*.gpx
+*.lproj/
+*.appex/

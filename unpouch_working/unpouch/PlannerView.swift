@@ -29,88 +29,80 @@ struct PlannerView: View {
     var body: some View {
         NavigationView {
             Form {
+                // Section 1: Daily Limit with interval preview below
                 Section(header: Text("planner_daily_limit_header")) {
-                    TextField("planner_pouches_per_day", text: $dailyPouches)
-                        .keyboardType(.numberPad)
-                    
-                    if let pouches = Int(dailyPouches), pouches > 0 {
-                        HStack {
-                            Text("planner_interval_preview")
-                            Spacer()
-                            Text(String(format: "%.1f h", intervalPerPouch))
-                                .foregroundColor(.secondary)
-                        }
-                        
-                        Text("planner_active_hours_info")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        
-                        HStack {
-                            Text("planner_active_hours")
-                            Spacer()
-                            Text(String(format: "%.1f h", activeHours))
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                }
-                
-                Section(header: Text("planner_sleep_duration")) {
-                    TextField("planner_sleep_hours", text: $sleepHours)
-                        .keyboardType(.decimalPad)
-                    
-                    Text("planner_sleep_hours_info")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                
-                Section(header: Text("planner_pack_info")) {
-                    TextField("planner_pack_price", text: $packPrice)
-                        .keyboardType(.decimalPad)
-                    
-                    TextField("planner_pouches_in_pack", text: $pouchesPerPack)
-                        .keyboardType(.numberPad)
-                    
-                    TextField("planner_currency", text: $currency)
-                        .autocapitalization(.none)
-                    
-                    if let _ = Double(packPrice), let count = Int(pouchesPerPack), count > 0 {
-                        HStack {
-                            Text("planner_cost_per_pouch")
-                            Spacer()
-                            Text(String(format: "%.2f %@", calculatedCostPerPouch, currency.isEmpty ? dataStore.settings.currency : currency))
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                }
-                
-                Section(header: Text("planner_summary")) {
                     HStack {
                         Text("planner_pouches_per_day")
                         Spacer()
-                        Text("\(dataStore.settings.plannerDailyLimit)")
-                            .foregroundColor(.secondary)
+                        TextField("8", text: $dailyPouches)
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
                     }
                     
-                    HStack {
-                        Text("planner_time_between_pouches")
-                        Spacer()
-                        Text(String(format: "%.1f h", intervalPerPouch))
+                    // Interval displayed below container in smaller font
+                    if let pouches = Int(dailyPouches), pouches > 0 {
+                        Text(String(format: "planner_approx_interval".localized, formatTime(intervalPerPouch)))
+                            .font(.caption)
                             .foregroundColor(.secondary)
+                            .padding(.top, 4)
                     }
-                    
+                }
+                
+                // Section 2: Sleep hours with active time below
+                Section(header: Text("planner_sleep_duration")) {
                     HStack {
                         Text("planner_sleep_hours")
                         Spacer()
-                        Text(String(format: "%.1f h", dataStore.settings.sleepHours))
-                            .foregroundColor(.secondary)
+                        TextField("8", text: $sleepHours)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                    }
+                    
+                    // Active time displayed below in smaller font
+                    Text(String(format: "planner_active_time_display".localized, String(format: "%.1f", activeHours)))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.top, 4)
+                }
+                
+                // Section 3: Pack Information
+                Section(header: Text("planner_pack_info")) {
+                    HStack {
+                        Text("planner_pack_price")
+                        Spacer()
+                        TextField("15.50", text: $packPrice)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
                     }
                     
                     HStack {
-                        Text("planner_cost_per_pouch")
+                        Text("planner_pouches_in_pack")
                         Spacer()
-                        Text(String(format: "%.2f %@", dataStore.settings.costPerPouch, dataStore.settings.currency))
-                            .foregroundColor(.secondary)
+                        TextField("12", text: $pouchesPerPack)
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
                     }
+                    
+                    HStack {
+                        Text("planner_currency")
+                        Spacer()
+                        TextField("PLN", text: $currency)
+                            .autocapitalization(.none)
+                            .multilineTextAlignment(.trailing)
+                    }
+                }
+                
+                // Cost per pouch displayed at the very bottom, outside main containers
+                Section {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("planner_cost_per_pouch")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(String(format: "estimated_cost_format".localized, calculatedCostPerPouch, currency.isEmpty ? dataStore.settings.currency : currency))
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                    }
+                    .padding(.vertical, 4)
                 }
             }
             .navigationTitle("planner")
@@ -153,6 +145,18 @@ struct PlannerView: View {
                     dataStore.save()
                 }
             }
+        }
+    }
+    
+    private func formatTime(_ hours: Double) -> String {
+        let totalMinutes = Int(hours * 60)
+        let h = totalMinutes / 60
+        let m = totalMinutes % 60
+        
+        if h > 0 {
+            return String(format: "%dh %dm", h, m)
+        } else {
+            return String(format: "%dm", m)
         }
     }
 }
