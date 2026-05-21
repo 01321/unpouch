@@ -5,6 +5,24 @@ struct ContentView: View {
     @State private var showSettings = false
     @State private var showStrengthPicker = false
     
+    var stats: (count: Int, totalMg: Int) {
+        return dataStore.getTodayStats()
+    }
+    
+    var timeAgoString: String {
+        guard let lastPouch = dataStore.pouches.max(by: { $0.date < $1.date }) else {
+            return ""
+        }
+        return lastPouch.date.timeAgoString()
+    }
+    
+    var detailedTimeString: String {
+        guard let lastPouch = dataStore.pouches.max(by: { $0.date < $1.date }) else {
+            return ""
+        }
+        return lastPouch.date.formattedTimeAgo()
+    }
+    
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
@@ -18,18 +36,16 @@ struct ContentView: View {
                 HStack(alignment: .center, spacing: 20) {
                     // Lewa strona: Informacje o ostatnim pouchu
                     VStack(alignment: .leading, spacing: 4) {
-                        if let lastPouch = dataStore.pouches.max(by: { $0.date < $1.date }) {
-                            let timeAgo = lastPouch.date.timeAgoString()
-                            
-                            // Większy napis "X pouches ago"
-                            Text(String(format: NSLocalizedString("last_pouch_ago_format", comment: ""), timeAgo))
-                                .font(.title3)
+                        if !dataStore.pouches.isEmpty {
+                            // Większy napis "X temu"
+                            Text(timeAgoString)
+                                .font(.title2)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.primary)
                             
                             // Mniejszy, szary napis z dokładnym czasem
-                            Text(lastPouch.date.formattedTimeAgo())
-                                .font(.subheadline)
+                            Text(detailedTimeString)
+                                .font(.caption)
                                 .foregroundColor(.secondary)
                         } else {
                             Text(NSLocalizedString("no_pouches_yet", comment: ""))
