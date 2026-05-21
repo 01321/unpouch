@@ -161,21 +161,67 @@ struct ContentView: View {
                     }
                 }
                 
-                // Stats Entry Button
-                NavigationLink(destination: {
-                    StatsView()
-                        .environmentObject(dataStore)
-                }) {
-                    HStack {
-                        Image(systemName: "chart.line.uptrend.xyaxis")
-                        Text("view_stats")
+                // Three Bottom Buttons in HStack
+                HStack(spacing: 12) {
+                    // View Statistics Button
+                    NavigationLink(destination: {
+                        StatsView()
+                            .environmentObject(dataStore)
+                    }) {
+                        VStack(spacing: 4) {
+                            Image(systemName: "chart.line.uptrend.xyaxis")
+                                .font(.title2)
+                            Text("view_stats")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                        }
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding(.vertical, 12)
+                        .frame(maxWidth: .infinity)
+                        .background(dataStore.settings.resolvedAccentColor)
+                        .cornerRadius(12)
                     }
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(dataStore.settings.resolvedAccentColor)
-                    .cornerRadius(15)
+                    
+                    // Planner Button
+                    NavigationLink(destination: {
+                        PlannerView()
+                            .environmentObject(dataStore)
+                    }) {
+                        VStack(spacing: 4) {
+                            Image(systemName: "calendar")
+                                .font(.title2)
+                            Text("planner")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                        }
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding(.vertical, 12)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue)
+                        .cornerRadius(12)
+                    }
+                    
+                    // Quit Helper Button
+                    NavigationLink(destination: {
+                        QuitHelperView()
+                            .environmentObject(dataStore)
+                    }) {
+                        VStack(spacing: 4) {
+                            Image(systemName: "hand.raised.fill")
+                                .font(.title2)
+                            Text("quit_helper")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                        }
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding(.vertical, 12)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.orange)
+                        .cornerRadius(12)
+                    }
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 30)

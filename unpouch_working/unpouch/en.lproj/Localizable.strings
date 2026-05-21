@@ -70,3 +70,5 @@
 "time_ago_now" = "now";
 "time_detailed_hm" = "%dh %dm";
 "time_detailed_m" = "%dm";
+"planner" = "Planner";
+"quit_helper" = "Quit Helper";

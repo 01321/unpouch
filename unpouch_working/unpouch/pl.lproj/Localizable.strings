@@ -70,3 +70,5 @@
 "time_ago_now" = "teraz";
 "time_detailed_hm" = "%dg %dmin";
 "time_detailed_m" = "%dmin";
+"planner" = "Planer";
+"quit_helper" = "Pomoc w Rzucaniu";
