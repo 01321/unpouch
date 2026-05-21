@@ -86,6 +86,9 @@
 "planner_pouches_in_pack" = "Pouches in der Packung";
 "planner_currency" = "Währungssymbol";
 "planner_cost_per_pouch" = "Kosten pro Pouch:";
+"planner_approx_interval" = "Ungefähres Intervall: %@";
+"planner_active_time_display" = "Aktive Zeit: %@h";
+"estimated_cost_format" = "%.2f %@ pro Pouch";
 "planner_summary" = "Zusammenfassung";
 "planner_time_between_pouches" = "Zeit zwischen Pouches:";
 "planner_sleep_hours" = "Schlafstunden:";
