@@ -14,41 +14,53 @@ struct ContentView: View {
                     .fontWeight(.bold)
                     .padding(.top)
                 
-                // Top Stats Section
-                VStack(spacing: 10) {
-                    Text("today")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.secondary)
-                    
-                    let stats = dataStore.getTodayStats()
-                    
-                    Text("\(stats.count)")
-                        .font(.system(size: 60, weight: .bold, design: .rounded))
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [dataStore.settings.resolvedAccentColor, dataStore.settings.resolvedAccentColor.opacity(0.7)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                    
-                    Text("\(stats.totalMg) mg")
-                        .font(.title)
-                        .fontWeight(.medium)
-                        .foregroundColor(.gray)
-                    
-                    // Time since last pouch
-                    if let timeSince = dataStore.getTimeSinceLastPouch() {
-                        Text(timeSince)
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                            .padding(.top, 4)
+                // Top Stats Section - HStack z czasem po lewej i liczbą po prawej
+                HStack(alignment: .center, spacing: 20) {
+                    // Lewa strona: Informacje o ostatnim pouchu
+                    VStack(alignment: .leading, spacing: 4) {
+                        if let lastPouch = dataStore.pouches.max(by: { $0.date < $1.date }) {
+                            let timeAgo = lastPouch.date.timeAgoString()
+                            
+                            // Większy napis "X pouches ago"
+                            Text(String(format: NSLocalizedString("last_pouch_ago_format", comment: ""), timeAgo))
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.primary)
+                            
+                            // Mniejszy, szary napis z dokładnym czasem
+                            Text(lastPouch.date.formattedTimeAgo())
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        } else {
+                            Text(NSLocalizedString("no_pouches_yet", comment: ""))
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.secondary)
+                        }
                     }
                     
-                    // Limit Status
-                    LimitStatusView(count: stats.count, limit: dataStore.settings.dailyLimit)
+                    // Prawa strona: Duża liczba pouchy dziś
+                    VStack(spacing: 8) {
+                        Text("\(stats.count)")
+                            .font(.system(size: 60, weight: .bold, design: .rounded))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [dataStore.settings.resolvedAccentColor, dataStore.settings.resolvedAccentColor.opacity(0.7)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                        
+                        Text("\(stats.totalMg) mg")
+                            .font(.title)
+                            .fontWeight(.medium)
+                            .foregroundColor(.gray)
+                    }
                 }
+                .padding()
+                
+                // Limit Status
+                LimitStatusView(count: stats.count, limit: dataStore.settings.dailyLimit)
                 
                 // Controls Section
                 VStack(spacing: 20) {

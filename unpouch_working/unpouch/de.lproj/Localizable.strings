@@ -58,3 +58,6 @@
 "1Y" = "1J";
 "danger_zone_header" = "Gefahrenzone";
 "clear_all_data" = "Alle Daten Löschen";
+"last_pouch_ago_format" = "vor %@";
+"no_pouches_yet" = "Noch keine Pouches";
+"just_now" = "gerade eben";
