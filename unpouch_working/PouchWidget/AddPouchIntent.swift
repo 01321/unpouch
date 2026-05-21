@@ -13,7 +13,8 @@ struct Pouch: Codable, Identifiable {
 struct AddPouchIntent: AppIntent {
     static var title: LocalizedStringResource = "Add Pouch"
     static var description = IntentDescription("Adds one pouch to the counter, just like the Add Pouch button in the main app.")
-    static var openAppWhenRun: Bool = false
+    static var openAppWhenRun: Bool = true
+    static var isDiscoverable: Bool = false
     
     @Parameter(title: "Strength", default: 10)
     var strength: Int
@@ -33,8 +34,15 @@ struct AddPouchIntent: AppIntent {
             pouches = decodedPouches
         }
         
-        // Dodaj nowego poucha
-        let newPouch = Pouch(date: Date(), strength: strength)
+        // Pobierz ustawienia aby uzyskać currentStrength
+        var currentStrength = 10
+        if let savedSettings = sharedDefaults.data(forKey: "saved_settings"),
+           let decodedSettings = try? JSONDecoder().decode(Settings.self, from: savedSettings) {
+            currentStrength = decodedSettings.currentStrength
+        }
+        
+        // Dodaj nowego poucha z aktualną mocą
+        let newPouch = Pouch(date: Date(), strength: currentStrength)
         pouches.append(newPouch)
         
         // Zapisz z powrotem
@@ -42,8 +50,9 @@ struct AddPouchIntent: AppIntent {
             sharedDefaults.set(encodedPouches, forKey: "saved_pouches")
         }
         
-        // Odśwież widget
-        WidgetCenter.shared.reloadTimelines(ofKind: "PouchWidget")
+        // Wymuś odświeżenie widgetu poprzez zmianę daty
+        let now = Date()
+        sharedDefaults.set(now.timeIntervalSince1970, forKey: "last_pouch_added_timestamp")
         
         return .result()
     }
