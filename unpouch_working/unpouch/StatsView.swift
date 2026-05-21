@@ -250,25 +250,25 @@ struct StatsView: View {
     
     var costBox: some View {
         let totalPouches = filteredData.count
-        let costPerPouch = 1.05
+        let costPerPouch = dataStore.settings.costPerPouch
         let totalCost = Double(totalPouches) * costPerPouch
         
         return VStack(spacing: 8) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Estimated Cost")
+                    Text("estimated_cost")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    Text(String(format: "%.2f zł", totalCost))
+                    Text(String(format: "%.2f %@", totalCost, dataStore.settings.currency))
                         .font(.title2)
                         .fontWeight(.bold)
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 4) {
-                    Text("Per pouch")
+                    Text("per_pouch")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    Text(String(format: "%.2f zł", costPerPouch))
+                    Text(String(format: "%.2f %@", costPerPouch, dataStore.settings.currency))
                         .font(.body)
                         .foregroundColor(.secondary)
                 }

@@ -1,14 +1,15 @@
 ```
 # Xcode
-build/
 *.xcodeproj/
 *.xcworkspace/
-DerivedData/
+*.xcuserstate
+*.swp
+*.swo
+*.tmp
 
-# Swift
-*.swiftmodule/
-*.swiftdoc/
-*.sib/
+# Build
+build/
+DerivedData/
 
 # Environment
 .env
@@ -18,12 +19,10 @@ DerivedData/
 # Logs
 *.log
 
-# Temporary files
-*.tmp
-*.temp
-*.bak
+# Swift
+*.swiftmodule
+*.swiftdoc
 
-# OS generated files
+# macOS
 .DS_Store
-Thumbs.db
 ```
