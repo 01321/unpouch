@@ -7,6 +7,49 @@ struct Pouch: Codable, Identifiable {
     let strength: Int // mg
 }
 
+extension Date {
+    func timeAgoString() -> String {
+        let calendar = Calendar.current
+        let now = Date()
+        let components = calendar.dateComponents([.minute, .hour, .day, .weekOfYear, .month, .year], from: self, to: now)
+        
+        if let years = components.year, years > 0 {
+            return "\(years)y"
+        }
+        if let months = components.month, months > 0 {
+            return "\(months)m"
+        }
+        if let weeks = components.weekOfYear, weeks > 0 {
+            return "\(weeks)w"
+        }
+        if let days = components.day, days > 0 {
+            return "\(days)d"
+        }
+        if let hours = components.hour, hours > 0 {
+            return "\(hours)h"
+        }
+        if let minutes = components.minute, minutes > 0 {
+            return "\(minutes)m"
+        }
+        return "now"
+    }
+    
+    func formattedTimeAgo() -> String {
+        let calendar = Calendar.current
+        let now = Date()
+        let components = calendar.dateComponents([.hour, .minute], from: self, to: now)
+        
+        if let hours = components.hour, let minutes = components.minute {
+            if hours > 0 {
+                return String(format: "%dh %dm", hours, minutes)
+            } else {
+                return String(format: "%dm", minutes)
+            }
+        }
+        return NSLocalizedString("just_now", comment: "")
+    }
+}
+
 struct Settings: Codable {
     var dailyLimit: Int = 10 // Number of pouches
     var resetHour: Int = 1
