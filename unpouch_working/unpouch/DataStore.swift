@@ -38,15 +38,7 @@ class DataStore: ObservableObject {
     }
     
     func calculateActiveHours() -> Double {
-        var start = settings.sleepEndHour
-        var end = settings.sleepStartHour
-        
-        // Handle case where sleep spans midnight
-        if end < start {
-            end += 24
-        }
-        
-        let activeHours = end - start
+        let activeHours = 24.0 - settings.sleepHours
         return max(0, activeHours)
     }
     

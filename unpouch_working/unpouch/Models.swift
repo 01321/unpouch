@@ -60,8 +60,12 @@ struct Settings: Codable {
     
     // Planner settings
     var plannerDailyLimit: Int = 8 // Default pouches per day for planner
-    var sleepStartHour: Double = 23.0 // Default sleep start time (23:00)
-    var sleepEndHour: Double = 7.0 // Default sleep end time (7:00)
+    var sleepHours: Double = 8.0 // Default sleep duration in hours
+    
+    // Pack info for cost calculation
+    var packPrice: Double = 25.0 // Price of the pack in currency
+    var currency: String = "zł" // Currency symbol
+    var pouchesPerPack: Int = 24 // Number of pouches in one pack
     
     var resolvedAccentColor: Color {
         switch accentColor {
@@ -79,6 +83,11 @@ struct Settings: Codable {
         var allStrengths = Set(baseStrengths + customStrengths)
         allStrengths.remove(0) // Remove 0mg if present
         return Array(allStrengths).sorted()
+    }
+    
+    var costPerPouch: Double {
+        guard pouchesPerPack > 0 else { return 0 }
+        return packPrice / Double(pouchesPerPack)
     }
     
     func usedStrengths(from pouches: [Pouch], maxCount: Int = 10) -> [Int] {
