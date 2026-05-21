@@ -1,42 +1,27 @@
 ```
-# Swift build artifacts
-*.swiftmodule
-*.swiftdoc
-*.dSYM/
-
 # Xcode
+build/
 *.xcodeproj/
 *.xcworkspace/
-*.xcuserstate
-xcuserdata/
-build/
 DerivedData/
 
-# iOS/Mac app bundles
-*.app/
-*.ipa
-*.dmg
-
-# Localizations temp files
-*.strings~
+# Swift
+*.swiftmodule/
+*.swiftdoc/
+*.sib/
 
 # Environment
 .env
 .env.local
-.env.*
-
-# Dependencies
-Pods/
-Carthage/
-vendor/bundle/
-node_modules/
-.venv/
-venv/
-__pycache__/
-*.egg-info/
+*.env.*
 
 # Logs
 *.log
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
 
 # OS generated files
 .DS_Store

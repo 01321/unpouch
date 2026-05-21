@@ -63,10 +63,25 @@ struct ContentView: View {
                             Text("Next Pouch:")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
-                            Text("--:--") // Tu wstawisz później swoją funkcję
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.primary)
+                            if dataStore.nextPouchReadyTime == nil {
+                                Text("--:--")
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.primary)
+                            } else {
+                                let timeInfo = dataStore.getTimeUntilNextPouch()
+                                if timeInfo.isReady {
+                                    Text(NSLocalizedString("next_pouch_ready", comment: ""))
+                                        .font(.title2)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.green)
+                                } else {
+                                    Text(String(format: "%dh %dm", timeInfo.hours, timeInfo.minutes))
+                                        .font(.title2)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.primary)
+                                }
+                            }
                         }
                         .frame(maxWidth: .infinity, alignment: .trailing)
                     }

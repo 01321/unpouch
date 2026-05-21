@@ -58,6 +58,11 @@ struct Settings: Codable {
     var customStrengths: [Int] = [] // Custom strengths added by user
     var accentColor: String = "blue" // "blue", "red", "green", "purple", "orange", "pink"
     
+    // Planner settings
+    var plannerDailyLimit: Int = 8 // Default pouches per day for planner
+    var sleepStartHour: Double = 23.0 // Default sleep start time (23:00)
+    var sleepEndHour: Double = 7.0 // Default sleep end time (7:00)
+    
     var resolvedAccentColor: Color {
         switch accentColor {
         case "red": return .red
