@@ -2,34 +2,25 @@
 # Build artifacts
 *.o
 *.obj
-*.a
-*.lib
-*.dylib
-*.so
-*.dll
-*.exe
 *.out
 
-# Xcode
+# Xcode specific
 *.xcodeproj/
 *.xcworkspace/
-*.pbxuser
-*.mode1v3
-*.perspectivev3
-*.xcuserstate
-*.xccheckout
-*.moved-aside
-build/
 DerivedData/
+*.app/
 
-# Swift
-*.swiftmodule
-*.swiftdoc
-*.swiftsourceinfo
+# iOS/Mac build
+build/
+*.ipa
+*.dSYM/
 
-# Temporary files
-*.tmp
-*.temp
+# Dependencies
+Pods/
+Carthage/
+vendor/bundle/
+
+# Logs
 *.log
 
 # Environment
@@ -37,7 +28,132 @@ DerivedData/
 .env.local
 *.env.*
 
-# Dependencies
-Pods/
-Carthage/
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Python (if applicable)
+__pycache__/
+*.pyc
+*.pyo
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage*
+nosetests.xml
+.pytest_cache/
+.mypy_cache/
+.hypothesis/
+
+# Node (if applicable)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+node_modules/
+dist/
+build/
+.nyc_output
+coverage/
+*.lcov
+
+# Ruby (if applicable)
+*.gem
+*.rbc
+.bundle/
+config.ru.bak
+coverage/
+InstalledFiles
+pkg/
+spec/reports/
+spec/examples.txt
+test/tmp/
+test/version_tmp/
+tmp/
+
+# Java (if applicable)
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+# C# (if applicable)
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+packages/
+bin/
+obj/
+TestResults/
+*.trx
+
+# Go (if applicable)
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.prof
+
+# Gradle (if applicable)
+.gradle/
+build/
+
+# C/C++ (if applicable)
+*.o
+*.a
+*.la
+*.lo
+*.so
+*.so.*
+*.dll
+*.dylib
+*.dSYM/
+*.pot
+*.po
+*.mo
+
+# Compressed
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
 ```

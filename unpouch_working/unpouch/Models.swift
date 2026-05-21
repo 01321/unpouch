@@ -14,24 +14,24 @@ extension Date {
         let components = calendar.dateComponents([.minute, .hour, .day, .weekOfYear, .month, .year], from: self, to: now)
         
         if let years = components.year, years > 0 {
-            return "\(years)y"
+            return String(format: NSLocalizedString("time_ago_years", comment: ""), years)
         }
         if let months = components.month, months > 0 {
-            return "\(months)m"
+            return String(format: NSLocalizedString("time_ago_months", comment: ""), months)
         }
         if let weeks = components.weekOfYear, weeks > 0 {
-            return "\(weeks)w"
+            return String(format: NSLocalizedString("time_ago_weeks", comment: ""), weeks)
         }
         if let days = components.day, days > 0 {
-            return "\(days)d"
+            return String(format: NSLocalizedString("time_ago_days", comment: ""), days)
         }
         if let hours = components.hour, hours > 0 {
-            return "\(hours)h"
+            return String(format: NSLocalizedString("time_ago_hours", comment: ""), hours)
         }
         if let minutes = components.minute, minutes > 0 {
-            return "\(minutes)m"
+            return String(format: NSLocalizedString("time_ago_minutes", comment: ""), minutes)
         }
-        return "now"
+        return NSLocalizedString("time_ago_now", comment: "")
     }
     
     func formattedTimeAgo() -> String {
@@ -41,9 +41,9 @@ extension Date {
         
         if let hours = components.hour, let minutes = components.minute {
             if hours > 0 {
-                return String(format: "%dh %dm", hours, minutes)
+                return String(format: NSLocalizedString("time_detailed_hm", comment: ""), hours, minutes)
             } else {
-                return String(format: "%dm", minutes)
+                return String(format: NSLocalizedString("time_detailed_m", comment: ""), minutes)
             }
         }
         return NSLocalizedString("just_now", comment: "")

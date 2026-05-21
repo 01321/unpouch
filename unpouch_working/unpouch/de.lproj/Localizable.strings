@@ -58,6 +58,15 @@
 "1Y" = "1J";
 "danger_zone_header" = "Gefahrenzone";
 "clear_all_data" = "Alle Daten Löschen";
-"last_pouch_ago_format" = "vor %@";
+"last_pouch_ago_format" = "vor %@ ago";
 "no_pouches_yet" = "Noch keine Pouches";
 "just_now" = "gerade eben";
+"time_ago_years" = "%dJ";
+"time_ago_months" = "%dM";
+"time_ago_weeks" = "%dW";
+"time_ago_days" = "%dT";
+"time_ago_hours" = "%dStd";
+"time_ago_minutes" = "%dMin";
+"time_ago_now" = "jetzt";
+"time_detailed_hm" = "%dStd %dMin";
+"time_detailed_m" = "%dMin";
