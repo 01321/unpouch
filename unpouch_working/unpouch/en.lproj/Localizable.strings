@@ -61,3 +61,12 @@
 "last_pouch_ago_format" = "%@ ago";
 "no_pouches_yet" = "No pouches yet";
 "just_now" = "just now";
+"time_ago_years" = "%dy";
+"time_ago_months" = "%dm";
+"time_ago_weeks" = "%dw";
+"time_ago_days" = "%dd";
+"time_ago_hours" = "%dh";
+"time_ago_minutes" = "%dm";
+"time_ago_now" = "now";
+"time_detailed_hm" = "%dh %dm";
+"time_detailed_m" = "%dm";
