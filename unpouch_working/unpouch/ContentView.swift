@@ -33,25 +33,45 @@ struct ContentView: View {
                     .padding(.top, -20)
                 
                 // Top Stats Section - HStack z czasem po lewej i liczbą po prawej
-                HStack(alignment: .center, spacing: 20) {
-                    // Lewa strona: Informacje o ostatnim pouchu
-                    VStack(alignment: .leading, spacing: 4) {
-                        if !dataStore.pouches.isEmpty {
-                            // Większy napis "X temu"
-                            Text("Last Pouch:")
-                            Text(timeAgoString)
+                ZStack {
+                    // Tło: Lewa i Prawa strona (rozpchnięte na całą szerokość)
+                    HStack {
+                        // Lewa strona: Last Pouch
+                        VStack(alignment: .leading, spacing: 4) {
+                            if !dataStore.pouches.isEmpty {
+                                Text("Last Pouch:")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                Text(timeAgoString)
+                                    .font(.title2)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.primary)
+                                // Tu możesz dodać detailedTimeString jeśli chcesz
+                            } else {
+                                Text(NSLocalizedString("no_pouches_yet", comment: ""))
+                                    .font(.title3)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        Spacer() // Puste miejsce po prawej, żeby wyważyć lewą stronę względem środka
+                        
+                        // Prawa strona: Next Pouch (Placeholder)
+                        VStack(alignment: .trailing, spacing: 4) {
+                            Text("Next Pouch:")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Text("--:--") // Tu wstawisz później swoją funkcję
                                 .font(.title2)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.primary)
-           
-                        } else {
-                            Text(NSLocalizedString("no_pouches_yet", comment: ""))
-                                .font(.title3)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.secondary)
                         }
+                        .frame(maxWidth: .infinity, alignment: .trailing)
                     }
-                    
+                    .padding(.horizontal, 20) // Opcjonalny padding boczny
+
                     // Prawa strona: Duża liczba pouchy dziś
                     VStack(spacing: 8) {
                         Text("\(stats.count)")
