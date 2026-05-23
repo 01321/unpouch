@@ -51,28 +51,23 @@ struct StatsView: View {
         guard !filteredData.isEmpty else { return [] }
         
         if selectedPeriod == .day24 {
-            // Dla 24h - pełne 24 godziny, ale etykiety tylko tam gdzie są zmiany
+            // Dla 24h - pełne 24 godziny, dane kumulatywne
             let endDate = Date()
             guard let startDate = calendar.date(byAdding: .hour, value: -23, to: endDate) else {
                 return []
             }
             
-            // Wypełnij wszystkie godziny zerami
+            // Wypełnij wszystkie godziny
             var currentDate = calendar.date(bySettingHour: calendar.component(.hour, from: startDate),
                                            minute: 0, second: 0, of: startDate) ?? startDate
             
-            // Znajdź godziny, w których były zmiany (dla etykiet)
-            var hoursWithChanges: Set<Int> = []
-            for entry in filteredData {
-                let hour = calendar.component(.hour, from: entry.date)
-                hoursWithChanges.insert(hour)
-            }
-            
+            var cumulativeCount = 0
             while currentDate <= endDate {
                 let hourCount = filteredData.filter { entry in
                     calendar.isDate(entry.date, equalTo: currentDate, toGranularity: .hour)
                 }.count
-                result.append((currentDate, hourCount))
+                cumulativeCount += hourCount
+                result.append((currentDate, cumulativeCount))
                 currentDate = calendar.date(byAdding: .hour, value: 1, to: currentDate) ?? endDate
             }
         } else if selectedPeriod == .week1 || selectedPeriod == .week2 {
@@ -291,11 +286,13 @@ struct StatsView: View {
             )
             .interpolationMethod(.linear) // Ostry wykres (liniowy)
             .symbol(.circle)
+            .foregroundStyle(dataStore.settings.resolvedAccentColor)
             
             PointMark(
                 x: .value("Date", item.date),
                 y: .value("Count", item.value)
             )
+            .foregroundStyle(dataStore.settings.resolvedAccentColor)
         }
         .chartXAxis {
             AxisMarks(values: xAxisValues()) { value in
